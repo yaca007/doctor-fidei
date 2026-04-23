@@ -10,45 +10,43 @@
   
   <style>
     /* -----------------------------------------------------------
-       1. VARIABLES Y RESETEO (Acordes al Logo)
+       1. VARIABLES Y RESETEO (Fluido y Acorde al Logo)
     ----------------------------------------------------------- */
     :root {
       --bg-dark: #03050a; /* Fondo ultra oscuro */
       --bg-panel: rgba(13, 20, 38, 0.6); /* Cristal esmerilado oscuro */
-      --bg-panel-solid: #0d1426; /* Para navegadores sin blur */
-      --gold-main: #d4af37; /* Dorado metálico del borde del logo */
-      --gold-light: #f4dc92; /* Dorado claro para acentos */
+      --gold-main: #d4af37; /* Dorado metálico del logo */
+      --gold-light: #f4dc92; /* Dorado claro acentos */
       --text-main: #f5f7fb; /* Blanco azulado */
       --text-muted: #98a4c7; /* Texto secundario */
-      --accent-blue: #5aa9ff; /* Azul para elementos interactivos */
-      --accent-blue-dim: rgba(90, 169, 255, 0.1);
-      --border-thin: rgba(255, 255, 255, 0.06);
-      --border-gold: rgba(212, 175, 55, 0.3);
+      --accent-blue: #5aa9ff; /* Azul interactivo */
       
-      /* Sombras y Efectos */
-      --shadow-premium: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-      --glow-gold: 0 0 15px rgba(212, 175, 55, 0.3);
+      /* Sombras y Efectos Premium */
+      --shadow-premium: 0 1rem 3rem -0.5rem rgba(0, 0, 0, 0.5);
+      --glow-gold: 0 0 1rem rgba(212, 175, 55, 0.3);
       
-      /* Radios y Espaciado */
-      --radius-lg: 24px;
-      --radius-md: 16px;
-      --radius-sm: 12px;
+      /* Radios y Espaciado Fluidos (usando rem) */
+      --radius-lg: 1.5rem;
+      --radius-md: 1rem;
+      --radius-sm: 0.75rem;
+      --spacing-base: 1.5rem;
     }
 
     * {
       box-sizing: border-box;
-      outline: none; /* Mejorar el reset, manejaremos el focus visualmente */
+      outline: none;
     }
 
     html, body {
       margin: 0;
       padding: 0;
-      height: 100%;
+      min-height: 100%; /* Permitir crecimiento natural */
       width: 100%;
       font-family: 'Inter', sans-serif;
       background-color: var(--bg-dark);
       color: var(--text-main);
-      overflow: hidden; /* El scroll lo maneja el layout */
+      overflow-x: hidden; /* Evitar scroll horizontal accidental */
+      overflow-y: auto; /* Permitir scroll vertical natural en el body */
       -webkit-font-smoothing: antialiased;
     }
 
@@ -68,35 +66,41 @@
       content: '';
       position: absolute;
       inset: 0;
-      background-image: url('data:image/svg+xml,%3Csvg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"%3E%3Cg fill="none" fill-rule="evenodd"%3E%3Cg fill="%23fff" fill-opacity="0.02"%3E%3Cpath d="M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6zM36 4V0h-2v4h-4v2h4v4h2V6h4V4h-4z"/%3E%3C/g%3E%3C/g%3E%3C/svg%3E'); /* Sutil patrón de cruces */
+      background-image: url('data:image/svg+xml,%3Csvg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"%3E%3Cg fill="none" fill-rule="evenodd"%3E%3Cg fill="%23fff" fill-opacity="0.02"%3E%3Cpath d="M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6zM36 4V0h-2v4h-4v2h4v4h2V6h4V4h-4z"/%3E%3C/g%3E%3C/g%3E%3C/svg%3E');
       opacity: 0.5;
     }
 
     /* -----------------------------------------------------------
-       3. LAYOUT PRINCIPAL (GRID RESPONSIVE)
+       3. LAYOUT PRINCIPAL (TOTALMENTE FLUIDO)
     ----------------------------------------------------------- */
     .app-shell {
-      display: grid;
-      grid-template-areas: 
-        "header"
-        "main";
-      grid-template-rows: auto 1fr;
-      height: 100vh;
-      width: 100vw;
-      padding: 20px;
-      gap: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-base);
+      padding: var(--spacing-base);
+      min-height: 100vh;
+      width: 100%;
     }
 
-    /* Responsive Layout Tablet/Desktop */
+    /* Responsive Layout Desktop: Grid Fluido */
     @media (min-width: 1024px) {
       .app-shell {
+        display: grid;
         grid-template-areas: 
           "header header"
           "sidebar main";
-        grid-template-columns: 350px 1fr;
-        padding: 30px;
-        gap: 30px;
+        grid-template-columns: 2fr 5fr; /* 2 partes sidebar, 5 partes main - Totalmente fluido */
       }
+    }
+
+    /* Panel base fluidos */
+    .panel-base {
+      background-color: var(--bg-panel);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-premium);
     }
 
     /* -----------------------------------------------------------
@@ -107,29 +111,23 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 20px;
-      padding: 15px 25px;
-      background-color: var(--bg-panel);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      border: 1px solid var(--border-thin);
-      border-radius: var(--radius-lg);
-      box-shadow: var(--shadow-premium);
+      gap: 1.5rem;
+      padding: 1rem 1.5rem;
       animation: slideDown 0.6s ease-out;
     }
 
     .brand {
       display: flex;
       align-items: center;
-      gap: 20px;
+      gap: 1.5rem;
+      flex-wrap: wrap; /* Permitir ajuste en móviles muy pequeños */
     }
 
-    /* Contenedor del Logo con Animación de Brillo */
+    /* Contenedor del Logo Fluido */
     .brand-logo-container {
       position: relative;
-      width: 70px;
-      height: 70px;
-      flex-shrink: 0;
+      width: clamp(50px, 10vw, 70px); /* Tamaño fluido con mínimo y máximo */
+      height: clamp(50px, 10vw, 70px);
       border-radius: 50%;
       overflow: hidden;
       box-shadow: var(--glow-gold);
@@ -141,522 +139,208 @@
       object-fit: cover;
     }
 
-    /* El efecto de brillo metálico animado */
+    /* Efecto Brillo Metálico Animado */
     .brand-logo-container::after {
       content: '';
       position: absolute;
-      top: -50%;
-      left: -50%;
-      width: 200%;
-      height: 200%;
-      background: linear-gradient(
-        45deg,
-        transparent 45%,
-        rgba(255, 255, 255, 0.1) 50%,
-        transparent 55%
-      );
+      top: -50%; left: -50%;
+      width: 200%; height: 200%;
+      background: linear-gradient(45deg, transparent 45%, rgba(255, 255, 255, 0.1) 50%, transparent 55%);
       animation: metallicShine 5s infinite;
     }
 
     .brand-text h1 {
       margin: 0;
       font-family: 'Cinzel Decorative', serif;
-      font-size: 1.8rem;
+      font-size: clamp(1.4rem, 4vw, 1.8rem); /* Texto fluido */
       color: #fff;
       letter-spacing: 0.05em;
-      text-shadow: 0 2px 10px rgba(0,0,0,0.3);
     }
 
-    .brand-text h1 span {
-      color: var(--gold-main);
-    }
+    .brand-text h1 span { color: var(--gold-main); }
+    .brand-text p { margin: 0.2rem 0 0; font-size: 0.95rem; color: var(--text-muted); }
 
-    .brand-text p {
-      margin: 3px 0 0;
-      font-size: 0.95rem;
-      color: var(--text-muted);
-      font-weight: 400;
-    }
-
-    .header-actions {
-      display: flex;
-      align-items: center;
-      gap: 15px;
-    }
-
+    /* Estado Conexión */
     .status-badge {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 8px 16px;
-      font-size: 0.85rem;
-      font-weight: 600;
-      color: #fff;
+      display: flex; align-items: center; gap: 0.5rem;
+      padding: 0.5rem 1rem;
+      font-size: 0.85rem; font-weight: 600;
       background-color: rgba(34, 197, 94, 0.1);
       border: 1px solid rgba(34, 197, 94, 0.3);
       border-radius: 999px;
     }
-
-    .status-dot {
-      width: 8px;
-      height: 8px;
-      background-color: #22c55e;
-      border-radius: 50%;
-      box-shadow: 0 0 10px #22c55e;
-      animation: pulseGreen 2s infinite;
-    }
-
-    /* Responsive Header Mobile */
-    @media (max-width: 768px) {
-      .app-header {
-        padding: 10px 15px;
-      }
-      .brand-logo-container {
-        width: 50px;
-        height: 50px;
-      }
-      .brand-text h1 {
-        font-size: 1.4rem;
-      }
-      .brand-text p, .status-badge {
-        display: none; /* Ocultar en móvil para ahorrar espacio */
-      }
-    }
+    .status-dot { width: 0.5rem; height: 0.5rem; background-color: #22c55e; border-radius: 50%; animation: pulseGreen 2s infinite; }
 
     /* -----------------------------------------------------------
-       5. BARRA LATERAL (SIDEBAR) - Adaptable
+       5. BARRA LATERAL (SIDEBAR) - Fluida
     ----------------------------------------------------------- */
     .app-sidebar {
       grid-area: sidebar;
-      display: flex;
-      flex-direction: column;
-      gap: 25px;
+      display: flex; flex-direction: column; gap: 1.5rem;
       animation: fadeUp 0.8s ease-out 0.2s both;
     }
 
-    /* Panel base */
+    /* Paneles Sidebar */
     .side-panel {
-      background-color: var(--bg-panel);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      border: 1px solid var(--border-thin);
-      border-radius: var(--radius-lg);
-      padding: 25px;
-      box-shadow: var(--shadow-premium);
+      padding: 1.5rem;
+      width: 100%;
     }
 
-    .panel-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 20px;
-    }
+    .panel-header { margin-bottom: 1.2rem; }
+    .panel-title { margin: 0; font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.15em; color: var(--gold-light); }
 
-    .panel-title {
-      margin: 0;
-      font-size: 0.8rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.15em;
-      color: var(--gold-light);
-    }
-
-    /* Modo de respuesta (Switch moderno) */
+    /* Selector de modo fluida */
     .mode-selector {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 5px;
+      display: grid; grid-template-columns: 1fr 1fr; gap: 0.3rem;
       background-color: rgba(0, 0, 0, 0.2);
-      border-radius: var(--radius-sm);
-      padding: 5px;
-      border: 1px solid var(--border-thin);
+      border-radius: var(--radius-sm); padding: 0.3rem;
+      border: 1px solid rgba(255, 255, 255, 0.06);
     }
-
     .mode-option {
-      padding: 10px;
-      text-align: center;
-      font-size: 0.9rem;
-      font-weight: 600;
-      color: var(--text-muted);
-      cursor: pointer;
-      border-radius: calc(var(--radius-sm) - 2px);
-      transition: all 0.3s ease;
-      user-select: none;
+      padding: 0.6rem; text-align: center; font-size: 0.9rem; font-weight: 600;
+      color: var(--text-muted); cursor: pointer;
+      border-radius: calc(var(--radius-sm) - 0.2rem); transition: 0.3s;
     }
-
-    .mode-option:hover:not(.active) {
-      color: var(--text-main);
-      background-color: rgba(255, 255, 255, 0.03);
-    }
-
     .mode-option.active {
-      color: #000;
-      background: linear-gradient(135deg, var(--gold-main), var(--gold-light));
-      box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
+      color: #000; background: linear-gradient(135deg, var(--gold-main), var(--gold-light));
+      box-shadow: 0 0.2rem 1rem rgba(212, 175, 55, 0.3);
     }
 
-    /* Accesos rápidos (Tarjetas modernas) */
+    /* Accesos rápidos - Grid totalmente responsive */
     .quick-actions-grid {
       display: grid;
-      grid-template-columns: 1fr;
-      gap: 12px;
-    }
-
-    @media (min-width: 600px) and (max-width: 1023px) {
-      .quick-actions-grid {
-        grid-template-columns: 1fr 1fr; /* 2 columnas en tablets */
-      }
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); /* Totalmente fluido, se ajusta al ancho */
+      gap: 1rem;
+      width: 100%;
     }
 
     .quick-action-card {
-      display: flex;
-      align-items: center;
-      gap: 15px;
-      padding: 18px;
-      background-color: rgba(255, 255, 255, 0.02);
-      border: 1px solid var(--border-thin);
-      border-radius: var(--radius-md);
-      cursor: pointer;
-      transition: all 0.3s ease;
-      text-align: left;
-      width: 100%;
-      color: var(--text-main);
+      display: flex; align-items: center; gap: 1rem;
+      padding: 1.2rem; background-color: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(255, 255, 255, 0.06); border-radius: var(--radius-md);
+      cursor: pointer; transition: 0.3s; color: var(--text-main); width: 100%;
     }
-
-    .quick-action-card:hover {
-      background-color: var(--accent-blue-dim);
-      border-color: rgba(90, 169, 255, 0.3);
-      transform: translateY(-3px);
-      box-shadow: 0 10px 20px -5px rgba(0, 0, 0, 0.3);
-    }
-
-    .quick-action-card .icon {
-      font-size: 1.4rem;
-      color: var(--gold-main);
-      transition: transform 0.3s ease;
-    }
-
-    .quick-action-card:hover .icon {
-      transform: scale(1.1);
-    }
-
-    .quick-action-card .text {
-      font-weight: 500;
-      font-size: 0.95rem;
-      line-height: 1.4;
-    }
-
-    /* Responsive Sidebar Mobile/Tablet */
-    @media (max-width: 1023px) {
-      .app-sidebar {
-        flex-direction: row; /* Elementos en fila */
-        flex-wrap: wrap; /* Permitir salto de línea */
-        gap: 15px;
-      }
-      
-      .side-panel {
-        flex: 1 1 calc(50% - 15px); /* Ocupar mitad de ancho */
-        padding: 15px;
-        margin-bottom: 0;
-      }
-      
-      /* Ocultar el panel de introducción en móvil para ahorrar espacio */
-      .side-panel.intro-panel {
-        display: none; 
-      }
-    }
-
-    @media (max-width: 600px) {
-      .side-panel {
-        flex: 1 1 100%; /* Ancho completo en móvil vertical */
-      }
-    }
+    .quick-action-card:hover { background-color: rgba(90, 169, 255, 0.05); border-color: rgba(90, 169, 255, 0.2); transform: translateY(-0.2rem); }
+    .quick-action-card .icon { font-size: 1.2rem; color: var(--gold-main); }
+    .quick-action-card .text { font-weight: 500; font-size: 0.9rem; line-height: 1.4; }
 
     /* -----------------------------------------------------------
-       6. ÁREA PRINCIPAL DE CHAT (Grid Interno)
+       6. ÁREA PRINCIPAL DE CHAT (Grid Interno Adaptado)
     ----------------------------------------------------------- */
     .app-main {
       grid-area: main;
-      display: grid;
-      grid-template-rows: 1fr auto; /* Chat 100%, Input auto */
-      background-color: var(--bg-panel);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      border: 1px solid var(--border-thin);
-      border-radius: var(--radius-lg);
-      box-shadow: var(--shadow-premium);
-      overflow: hidden; /* Importante */
+      display: flex; flex-direction: column; /* Cambiado a flex para control interno */
+      min-height: 100%; /* Crecimiento fluido */
       animation: fadeUp 0.8s ease-out 0.4s both;
     }
 
-    /* Contenedor de mensajes (Scrollable) */
+    /* Contenedor de mensajes fluida */
     .chat-container {
-      padding: 30px;
-      overflow-y: auto;
-      scroll-behavior: smooth;
-      display: flex;
-      flex-direction: column;
-      gap: 20px;
-    }
-
-    /* Estilo del Scrollbar Premium */
-    .chat-container::-webkit-scrollbar {
-      width: 8px;
-    }
-    .chat-container::-webkit-scrollbar-track {
-      background: transparent;
-    }
-    .chat-container::-webkit-scrollbar-thumb {
-      background: rgba(255, 255, 255, 0.08);
-      border-radius: 999px;
-    }
-    .chat-container::-webkit-scrollbar-thumb:hover {
-      background: rgba(255, 255, 255, 0.15);
-    }
-
-    /* Burbujas de mensaje */
-    .message-row {
-      display: flex;
+      flex: 1; /* Ocupar todo el espacio disponible */
+      padding: 1.5rem;
+      display: flex; flex-direction: column; gap: 1rem;
       width: 100%;
-      animation: messagePopIn 0.4s ease-out both;
     }
 
-    .message-row.user {
-      justify-content: flex-end;
-    }
-
-    .message-row.bot {
-      justify-content: flex-start;
-    }
+    /* Burbujas de mensaje fluidas */
+    .message-row { display: flex; width: 100%; animation: messagePopIn 0.4s ease-out both; }
+    .message-row.user { justify-content: flex-end; }
+    .message-row.bot { justify-content: flex-start; }
 
     .message-content {
-      position: relative;
-      max-width: 80%;
-      padding: 15px 20px;
-      font-size: 0.98rem;
-      line-height: 1.6;
-      border-radius: var(--radius-md);
-      word-wrap: break-word;
+      max-width: 85%; /* Ancho fluido */
+      padding: 1rem; font-size: 0.98rem; line-height: 1.6;
+      border-radius: var(--radius-md); word-wrap: break-word;
     }
 
-    /* Estilo Usuario (Moderno, degradado sutil) */
+    /* Estilo Usuario */
     .message-row.user .message-content {
       background: linear-gradient(135deg, rgba(90, 169, 255, 0.15), rgba(90, 169, 255, 0.05));
-      color: #fff;
-      border: 1px solid rgba(90, 169, 255, 0.2);
-      border-bottom-right-radius: 4px;
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      color: #fff; border: 1px solid rgba(90, 169, 255, 0.2);
+      border-bottom-right-radius: 0.2rem;
     }
 
-    /* Estilo Bot (Fondo sólido panel) */
+    /* Estilo Bot */
     .message-row.bot .message-content {
       background-color: rgba(255, 255, 255, 0.03);
-      color: var(--text-main);
-      border: 1px solid var(--border-thin);
-      border-bottom-left-radius: 4px;
+      color: var(--text-main); border: 1px solid rgba(255, 255, 255, 0.06);
+      border-bottom-left-radius: 0.2rem;
     }
 
-    /* Formateo interno de mensajes (MarkDown-like) */
-    .message-content strong, .message-content b {
-      color: var(--gold-light);
-      font-weight: 600;
-    }
-
+    /* Formateo mensajes */
+    .message-content b { color: var(--gold-light); font-weight: 600; }
     .message-content blockquote {
-      margin: 12px 0;
-      padding: 10px 15px;
-      border-left: 3px solid var(--gold-main);
-      background-color: rgba(212, 175, 55, 0.05);
-      border-radius: 4px;
-      color: #fdf6e3;
+      margin: 0.8rem 0; padding: 0.6rem 1rem;
+      border-left: 0.2rem solid var(--gold-main);
+      background-color: rgba(212, 175, 55, 0.05); border-radius: 0.3rem;
     }
 
-    /* Estado Typing (Sofisticado) */
-    .typing-indicator {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      color: var(--text-muted);
-      font-size: 0.9rem;
-      font-weight: 500;
-    }
-
-    .typing-dots {
-      display: flex;
-      gap: 5px;
-    }
-
-    .typing-dots span {
-      width: 8px;
-      height: 8px;
-      background-color: var(--gold-main);
-      border-radius: 50%;
-      opacity: 0.4;
-      animation: typingDot 1.4s infinite ease-in-out;
-    }
-
+    /* typing avanzado fluida */
+    .typing-indicator { display: flex; align-items: center; gap: 0.8rem; color: var(--text-muted); font-size: 0.9rem; }
+    .typing-dots { display: flex; gap: 0.3rem; }
+    .typing-dots span { width: 0.5rem; height: 0.5rem; background-color: var(--gold-main); border-radius: 50%; opacity: 0.4; animation: typingDot 1.4s infinite ease-in-out; }
     .typing-dots span:nth-child(2) { animation-delay: 0.2s; }
     .typing-dots span:nth-child(3) { animation-delay: 0.4s; }
 
-    /* Responsive Chat Mobile */
-    @media (max-width: 600px) {
-      .chat-container {
-        padding: 20px 15px;
-      }
-      .message-content {
-        max-width: 90%;
-        padding: 12px 16px;
-        font-size: 0.95rem;
-      }
-    }
-
     /* -----------------------------------------------------------
-       7. ÁREA DE ENTRADA (INPUT) - Fija Abajo
+       7. ÁREA DE ENTRADA (STICKY EN LA PARTE INFERIOR)
     ----------------------------------------------------------- */
-    .chat-input-area {
-      padding: 20px;
-      background-color: rgba(0, 0, 0, 0.2);
-      border-top: 1px solid var(--border-thin);
+    .chat-input-sticky-area {
+      position: sticky; /* Adhesivo */
+      bottom: 0;
+      width: 100%;
+      padding: 1.2rem;
+      background-color: rgba(3, 5, 10, 0.8); /* Fondo semi-traslúcido */
+      backdrop-filter: blur(10px);
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+      margin-top: auto; /* Empujar hacia abajo */
     }
 
     .input-wrapper {
-      display: flex;
-      align-items: flex-end;
-      gap: 12px;
+      display: flex; align-items: flex-end; gap: 0.8rem;
       background-color: rgba(255, 255, 255, 0.03);
-      border: 1px solid var(--border-thin);
-      border-radius: var(--radius-md);
-      padding: 10px;
-      transition: all 0.3s ease;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: var(--radius-md); padding: 0.6rem;
     }
-
-    .input-wrapper:focus-within {
-      border-color: rgba(90, 169, 255, 0.4);
-      background-color: rgba(255, 255, 255, 0.05);
-      box-shadow: 0 0 15px rgba(90, 169, 255, 0.1);
-    }
+    .input-wrapper:focus-within { border-color: rgba(90, 169, 255, 0.4); background-color: rgba(255, 255, 255, 0.05); }
 
     #question {
-      flex: 1;
-      background: transparent;
-      border: none;
-      color: var(--text-main);
-      font-family: inherit;
-      font-size: 1rem;
-      line-height: 1.5;
-      padding: 8px;
-      resize: none;
-      min-height: 44px;
-      max-height: 150px; /* Limitar crecimiento */
+      flex: 1; background: transparent; border: none;
+      color: var(--text-main); font-family: inherit; font-size: 1rem;
+      line-height: 1.5; padding: 0.5rem; resize: none;
+      min-height: 2.5rem; /* Altura base fluida */
+      max-height: 10rem; /* Límite de crecimiento fluida */
     }
+    #question::placeholder { color: var(--text-muted); }
 
-    #question::placeholder {
-      color: var(--text-muted);
-    }
-
-    /* Botones de acción */
+    /* Botones fluida */
     .action-btn {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 44px;
-      height: 44px;
-      border-radius: var(--radius-sm);
-      border: none;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      width: 2.5rem; height: 2.5rem; /* Botones fluidos */
+      border-radius: var(--radius-sm); border: none; cursor: pointer;
     }
-
-    /* Botón Limpiar (✦) */
-    .btn-clear {
-      background-color: rgba(255, 255, 255, 0.03);
-      color: var(--text-muted);
-      border: 1px solid var(--border-thin);
-    }
-
-    .btn-clear:hover {
-      background-color: rgba(239, 68, 68, 0.1); /* Tono rojo suave */
-      color: #ef4444;
-      border-color: rgba(239, 68, 68, 0.3);
-    }
-
-    /* Botón Enviar (Dorado Premium) */
-    .btn-send {
-      background: linear-gradient(135deg, var(--gold-main), var(--gold-light));
-      color: #000;
-      font-weight: 700;
-      font-size: 1.2rem;
-      box-shadow: 0 4px 15px rgba(212, 175, 55, 0.2);
-    }
-
-    .btn-send:hover:not(:disabled) {
-      transform: translateY(-2px) scale(1.03);
-      box-shadow: 0 6px 20px rgba(212, 175, 55, 0.3);
-    }
-
-    .btn-send:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-      transform: none;
-    }
+    .btn-clear { background-color: rgba(255, 255, 255, 0.03); color: var(--text-muted); border: 1px solid rgba(255, 255, 255, 0.06); }
+    .btn-clear:hover { background-color: rgba(239, 68, 68, 0.1); color: #ef4444; border-color: rgba(239, 68, 68, 0.3); }
+    .btn-send { background: linear-gradient(135deg, var(--gold-main), var(--gold-light)); color: #000; font-weight: 700; font-size: 1.1rem; }
+    .btn-send:hover:not(:disabled) { transform: translateY(-0.1rem); }
+    .btn-send:disabled { opacity: 0.5; cursor: not-allowed; }
 
     /* Responsive Input Mobile */
     @media (max-width: 600px) {
-      .chat-input-area {
-        padding: 10px;
-        padding-bottom: calc(10px + env(safe-area-inset-bottom)); /* Soporte iPhone notch */
-      }
-      .input-wrapper {
-        padding: 5px;
-        gap: 8px;
-      }
-      #question {
-        font-size: 0.95rem;
-        padding: 6px;
-      }
-      .action-btn {
-        width: 38px;
-        height: 38px;
-        font-size: 1rem;
-      }
+      .chat-input-sticky-area { padding: 0.8rem; padding-bottom: calc(0.8rem + env(safe-area-inset-bottom)); }
+      #question { font-size: 0.95rem; }
+      .action-btn { width: 2.2rem; height: 2.2rem; }
     }
 
     /* -----------------------------------------------------------
        8. KEYFRAMES (ANIMACIONES)
     ----------------------------------------------------------- */
-    @keyframes metallicShine {
-      0% { transform: translate(-50%, -50%) rotate(0deg); opacity: 0; }
-      10% { opacity: 1; }
-      20% { transform: translate(50%, 50%) rotate(0deg); opacity: 0; }
-      100% { opacity: 0; }
-    }
-
-    @keyframes pulseGreen {
-      0% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.4); }
-      70% { box-shadow: 0 0 0 10px rgba(34, 197, 94, 0); }
-      100% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); }
-    }
-
-    @keyframes slideDown {
-      from { transform: translateY(-30px); opacity: 0; }
-      to { transform: translateY(0); opacity: 1; }
-    }
-
-    @keyframes fadeUp {
-      from { transform: translateY(30px); opacity: 0; }
-      to { transform: translateY(0); opacity: 1; }
-    }
-
-    @keyframes messagePopIn {
-      from { transform: scale(0.9) translateY(10px); opacity: 0; }
-      to { transform: scale(1) translateY(0); opacity: 1; }
-    }
-
-    @keyframes typingDot {
-      0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
-      30% { transform: translateY(-6px); opacity: 1; }
-    }
+    @keyframes metallicShine { 0% { transform: translate(-50%, -50%) rotate(0deg); opacity: 0; } 10% { opacity: 1; } 20% { transform: translate(50%, 50%) rotate(0deg); opacity: 0; } 100% { opacity: 0; } }
+    @keyframes pulseGreen { 0% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.4); } 70% { box-shadow: 0 0 0 0.8rem rgba(34, 197, 94, 0); } 100% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); } }
+    @keyframes slideDown { from { transform: translateY(-2rem); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+    @keyframes fadeUp { from { transform: translateY(2rem); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+    @keyframes messagePopIn { from { transform: scale(0.9) translateY(0.8rem); opacity: 0; } to { transform: scale(1) translateY(0); opacity: 1; } }
+    @keyframes typingDot { 0%, 60%, 100% { transform: translateY(0); opacity: 0.4; } 30% { transform: translateY(-0.4rem); opacity: 1; } }
 
   </style>
 </head>
@@ -666,14 +350,14 @@
 
   <div class="app-shell">
 
-    <header class="app-header">
+    <header class="app-header panel-base">
       <div class="brand">
         <div class="brand-logo-container">
           <img src="image_2.png" alt="Insignia Doctor Fidei" class="brand-logo">
         </div>
         <div class="brand-text">
           <h1>Doctor <span>Fidei</span></h1>
-          <p>Asistente del Magisterio y Doctrina Católica</p>
+          <p>Asistente del Magisterio Católico</p>
         </div>
       </div>
       <div class="header-actions">
@@ -686,16 +370,16 @@
 
     <aside class="app-sidebar">
       
-      <section class="side-panel intro-panel">
+      <section class="side-panel panel-base intro-panel">
         <div class="panel-header">
           <h2 class="panel-title">Guía Doctrinal</h2>
         </div>
         <p style="margin:0; font-size: 0.95rem; line-height: 1.6; color: var(--text-muted);">
-          Explora la Fe con rigor y claridad. Consulta sobre Biblia, Catecismo, Magisterio y Apologética seria.
+          Consulta sobre Biblia, Catecismo y Magisterio con rigor y claridad.
         </p>
       </section>
 
-      <section class="side-panel">
+      <section class="side-panel panel-base">
         <div class="panel-header">
           <h2 class="panel-title">Extensión de Respuesta</h2>
         </div>
@@ -705,7 +389,7 @@
         </div>
       </section>
 
-      <section class="side-panel">
+      <section class="side-panel panel-base">
         <div class="panel-header">
           <h2 class="panel-title">Consultas Frecuentes</h2>
         </div>
@@ -714,11 +398,11 @@
             <span class="icon">✝</span>
             <span class="text">Uso de Imágenes</span>
           </button>
-          <button class="quick-action-card quick-btn" data-question="¿Qué enseña la Iglesia sobre María como Madre de Dios?">
+          <button class="quick-action-card quick-btn" data-question="¿En qué se basa el dogma mariano Madre de Dios?">
             <span class="icon">⚜</span>
             <span class="text">Dogma Mariano</span>
           </button>
-          <button class="quick-action-card quick-btn" data-question="¿Qué dice el Magisterio sobre la sola Scriptura?">
+          <button class="quick-action-card quick-btn" data-question="¿Por qué la Iglesia rechaza la sola Scriptura?">
             <span class="icon">📖</span>
             <span class="text">Sola Scriptura</span>
           </button>
@@ -731,7 +415,7 @@
 
     </aside>
 
-    <main class="app-main">
+    <main class="app-main panel-base">
       
       <div id="chat" class="chat-container">
         <div class="message-row bot">
@@ -741,9 +425,9 @@
         </div>
       </div>
 
-      <div class="chat-input-area">
+      <div class="chat-input-sticky-area">
         <div class="input-wrapper">
-          <textarea id="question" placeholder="Escribe tu consulta doctrinal aquí..." rows="1"></textarea>
+          <textarea id="question" placeholder="Escribe tu consulta doctrinal..." rows="1"></textarea>
           
           <button class="action-btn btn-clear" id="clearBtn" title="Limpiar chat">
             ✦
@@ -752,8 +436,8 @@
             ▶
           </button>
         </div>
-        <p style="margin: 10px 0 0; text-align: center; font-size: 0.75rem; color: rgba(255,255,255,0.4); padding: 0 10px;">
-          Respuestas basadas en fuentes oficiales. Verifique siempre los documentos citados.
+        <p style="margin: 0.6rem 0 0; text-align: center; font-size: 0.75rem; color: rgba(255,255,255,0.4); padding: 0 0.5rem;">
+          Respuestas basadas en fuentes oficiales. Verifique documentos.
         </p>
       </div>
 
@@ -771,27 +455,29 @@
 
     let responseMode = 'breve';
 
-    // Auto-resizing del textarea (Mejorado)
+    // Auto-resizing del textarea fluido
     function autoResizeTextarea() {
       input.style.height = 'auto';
-      const newHeight = Math.min(input.scrollHeight, 150); // Límite max
+      // Crecimiento fluido hasta un máximo (10rem)
+      const maxHeightEm = 10 * parseFloat(getComputedStyle(document.documentElement).fontSize);
+      const newHeight = Math.min(input.scrollHeight, maxHeightEm);
       input.style.height = newHeight + 'px';
       
-      // Ajuste de UI móvil: si el textarea crece, asegura que el último mensaje sea visible
+      // Ajuste de scroll si crece
       if (window.innerWidth < 600) {
           scrollToBottom();
       }
     }
 
-    // Scroll al final (Helper)
+    // Scroll al final fluida (Adaptada a scroll del body)
     function scrollToBottom() {
-        chat.scrollTop = chat.scrollHeight;
+        // En este layout, el scroll principal es el del body, no el del chat-container
+        window.scrollTo(0, document.body.scrollHeight);
     }
 
-    // Formateo básico de mensajes (Mantenido el original)
+    // Formateo mensajes mantenido
     function escapeHtml(text) {
-      const div = document.createElement('div');
-      div.textContent = text;
+      const div = document.createElement('div'); div.textContent = text;
       return div.innerHTML;
     }
 
@@ -804,29 +490,23 @@
       return html;
     }
 
-    // Añadir mensaje con animación (UI Mejorada)
+    // Añadir mensaje con animación fluida
     function appendMessage(role, content, options = {}) {
-      const row = document.createElement('div');
-      row.className = `message-row ${role}`;
-
-      const contentDiv = document.createElement('div');
-      contentDiv.className = 'message-content';
+      const row = document.createElement('div'); row.className = `message-row ${role}`;
+      const contentDiv = document.createElement('div'); contentDiv.className = 'message-content';
       
-      if (options.raw) {
-          contentDiv.innerHTML = content;
-      } else {
-          contentDiv.innerHTML = formatMessage(content);
-      }
+      if (options.raw) { contentDiv.innerHTML = content; }
+      else { contentDiv.innerHTML = formatMessage(content); }
 
       row.appendChild(contentDiv);
       chat.appendChild(row);
       
-      // Delay mínimo para que la animación se ejecute correctamente antes del scroll
+      // Delay para asegurar renderizado antes del scroll
       setTimeout(scrollToBottom, 50);
       return row;
     }
 
-    // Indicador de "Typing" Avanzado
+    // typing avanzado fluida
     function appendTyping() {
       const typingHtml = `
         <div class="typing-indicator">
@@ -837,26 +517,25 @@
       return appendMessage('bot', typingHtml, { raw: true });
     }
 
-    // LÓGICA DE BACKEND (Respetada la original)
+    // LÓGICA DE BACKEND RESPETADA
     async function sendMessage(prefilledText = '') {
       const baseQuestion = prefilledText || input.value.trim();
       if (!baseQuestion) return;
 
-      // Mantener formato solicitado por el backend original
       const finalQuestion = `Modo de respuesta solicitado: ${responseMode}.\n\nPregunta: ${baseQuestion}`;
 
       appendMessage('user', baseQuestion);
       input.value = '';
       autoResizeTextarea(); // Reset height
-      input.blur(); // Ocultar teclado en móvil tras enviar
+      input.blur(); // Ocultar teclado en móvil
 
       sendBtn.disabled = true;
-      sendBtn.innerHTML = '...'; // UI Feedback simple
+      sendBtn.innerHTML = '...';
 
       const typingRow = appendTyping();
 
       try {
-        // --- CONEXIÓN AL BACKEND (No tocar si ya funciona) ---
+        // --- CONEXIÓN AL BACKEND (Mantenida) ---
         const response = await fetch('/chat', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -873,21 +552,20 @@
         }
       } catch (error) {
         typingRow.remove();
-        appendMessage('bot', '❌ <b>Error de conexión:</b> No se pudo contactar con el servidor de Doctor Fidei.');
+        appendMessage('bot', '❌ <b>Error de conexión:</b> No se pudo contactar con el servidor.');
       } finally {
         sendBtn.disabled = false;
         sendBtn.innerHTML = '▶';
-        // En desktop, devolver focus. En móvil no para evitar que salte el teclado.
         if (window.innerWidth > 1024) input.focus();
       }
     }
 
-    // EVENTOS (Mantenidos)
+    // EVENTOS MANTENIDOS
     sendBtn.addEventListener('click', () => sendMessage());
 
     clearBtn.addEventListener('click', () => {
       chat.innerHTML = `
-        <div class="message-row bot animation-fadePopIn">
+        <div class="message-row bot">
           <div class="message-content">
             <b>Chat reiniciado.</b> Estoy a tu disposición para profundizar en la Doctrina Católica. ¿Qué tema deseas consultar hoy?
           </div>
@@ -900,26 +578,21 @@
 
     input.addEventListener('input', autoResizeTextarea);
     
-    // Manejo inteligente de Enter (Mantenido)
     input.addEventListener('keydown', (e) => {
       if (e.key === 'Enter' && !e.shiftKey) {
         e.preventDefault();
-        // Evitar enviar si está deshabilitado
         if (!sendBtn.disabled) sendMessage();
       }
     });
 
-    // Accesos rápidos (Mantenidos)
     quickButtons.forEach(btn => {
       btn.addEventListener('click', () => {
-        // UI Feedback: simular pulsación
         btn.style.transform = 'scale(0.95)';
         setTimeout(() => btn.style.transform = '', 150);
         sendMessage(btn.dataset.question || '');
       });
     });
 
-    // Selector de modo (UI Switch Mantenida)
     modeOptions.forEach(option => {
       option.addEventListener('click', () => {
         modeOptions.forEach(o => o.classList.remove('active'));
@@ -928,7 +601,7 @@
       });
     });
 
-    // Inicialización
+    // Inicialización fluida
     autoResizeTextarea();
     // Corrección para altura en móviles (vvh issue)
     function setFullHeight() {
