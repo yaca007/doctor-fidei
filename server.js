@@ -3,7 +3,6 @@ import cors from "cors";
 import dotenv from "dotenv";
 import OpenAI from "openai";
 import path from "path";
-import pptxgen from "pptxgenjs";
 import { fileURLToPath } from "url";
 
 dotenv.config();
@@ -15,7 +14,7 @@ const app = express();
 const port = process.env.PORT || 3000;
 
 app.use(cors());
-app.use(express.json());
+app.use(express.json({ limit: "2mb" }));
 app.use(express.static(path.join(__dirname, "public")));
 
 const client = new OpenAI({
@@ -117,6 +116,7 @@ puedes utilizar frases que cumplan ese fin.
 Me gusta mucho mi REY!
 `;
 
+// ================= CHAT =================
 app.post("/chat", async (req, res) => {
   try {
     const { message } = req.body;
@@ -128,25 +128,20 @@ app.post("/chat", async (req, res) => {
     const response = await client.responses.create({
       model: "gpt-5",
       input: [
-        {
-          role: "system",
-          content: SYSTEM_PROMPT
-        },
-        {
-          role: "user",
-          content: message
-        }
+        { role: "system", content: SYSTEM_PROMPT },
+        { role: "user", content: message }
       ]
     });
 
     res.json({ reply: response.output_text || "No se pudo generar respuesta." });
+
   } catch (error) {
     console.error("Error en /chat:", error);
-    res.status(500).json({
-      error: "Ocurrió un error al consultar la IA."
-    });
+    res.status(500).json({ error: "Error en IA" });
   }
 });
+
+// ================= PRESENTATION =================
 app.post("/presentation", async (req, res) => {
   try {
     const {
@@ -160,114 +155,91 @@ app.post("/presentation", async (req, res) => {
       speakerNotes
     } = req.body;
 
+    // 🔥 IMPORT DINÁMICO (CLAVE PARA EVITAR 500 EN VERCEL)
+    const { default: pptxgen } = await import("pptxgenjs");
+
+    if (!sourceAnswer || !sourceAnswer.trim()) {
+      return res.status(400).json({ error: "Falta contenido para generar PPT." });
+    }
+
     const pptx = new pptxgen();
     pptx.layout = "LAYOUT_WIDE";
 
     const bg = "0B1020";
     const gold = "D4AF37";
     const white = "F5F7FB";
-    const muted = "C7D0EA";
 
-    function addDecorativeFrame(slide) {
+    function addSlide(title, content) {
+      const slide = pptx.addSlide();
+
       slide.background = { color: bg };
 
-      slide.addShape(pptx.ShapeType.rect, {
-        x: 0.25,
-        y: 0.25,
-        w: 12.83,
-        h: 7.0,
-        line: { color: gold, width: 1.2 },
-        fill: { color: bg, transparency: 100 }
-      });
-
-      slide.addShape(pptx.ShapeType.rect, {
-        x: 0.42,
-        y: 0.42,
-        w: 12.49,
-        h: 6.66,
-        line: { color: "6E5A1E", width: 0.7 },
-        fill: { color: bg, transparency: 100 }
-      });
-    }
-
-    function addSlide(slideTitle, bodyText, footer = "Doctor Fidei") {
-      const slide = pptx.addSlide();
-      addDecorativeFrame(slide);
-
-      slide.addText(slideTitle, {
-        x: 0.75,
-        y: 0.55,
-        w: 11.8,
-        h: 0.6,
-        fontFace: "Georgia",
-        fontSize: 27,
+      slide.addText(title, {
+        x: 0.7,
+        y: 0.5,
+        w: 11.5,
+        fontSize: 26,
         bold: true,
         color: gold
       });
 
-      slide.addText(bodyText || "", {
-        x: 0.85,
-        y: 1.35,
-        w: 11.6,
-        h: 5.2,
-        fontFace: "Georgia",
+      slide.addText(content || "", {
+        x: 0.7,
+        y: 1.3,
+        w: 11.5,
+        h: 5,
         fontSize: 16,
         color: white,
-        breakLine: false,
         fit: "shrink"
-      });
-
-      slide.addText(footer, {
-        x: 0.85,
-        y: 6.82,
-        w: 11.6,
-        h: 0.25,
-        fontSize: 9,
-        italic: true,
-        color: muted,
-        align: "center"
       });
     }
 
+    // portada
     addSlide(
       title || "Capacitación doctrinal",
-      `${sourceQuestion || ""}\n\nEstilo: ${deckStyle || "victoriano-renacentista"}\nNivel: ${audienceLevel || "intermedio"}\nEnfoque: ${deckTone || "catequético"}`
+      sourceQuestion || ""
     );
 
-    const sections = (sourceAnswer || "")
-      .split(/##\s+/)
-      .map(s => s.trim())
-      .filter(Boolean);
+    // contenido
+    const sections = sourceAnswer.split("##").filter(s => s.trim());
 
-    const maxSlides = Number(slideCount || 8) - 1;
-
-    sections.slice(0, maxSlides).forEach(section => {
-      const lines = section.split("\n").filter(Boolean);
-      const slideTitle = lines[0]?.replace(/[#*]/g, "").trim() || "Tema doctrinal";
-      const body = lines.slice(1).join("\n").replace(/\*\*/g, "").slice(0, 1400);
-
-      addSlide(slideTitle, body);
+    sections.slice(0, (slideCount || 8) - 1).forEach(sec => {
+      const lines = sec.trim().split("\n");
+      const t = lines[0] || "Tema";
+      const body = lines.slice(1).join("\n").slice(0, 1200);
+      addSlide(t, body);
     });
 
     if (speakerNotes) {
-      addSlide("Notas para el presentador", speakerNotes);
+      addSlide("Notas del presentador", speakerNotes);
     }
 
     const buffer = await pptx.write({ outputType: "nodebuffer" });
 
-    res.setHeader("Content-Disposition", `attachment; filename="doctor-fidei-presentacion.pptx"`);
-    res.setHeader("Content-Type", "application/vnd.openxmlformats-officedocument.presentationml.presentation");
+    res.setHeader(
+      "Content-Disposition",
+      `attachment; filename="doctor-fidei.pptx"`
+    );
+
+    res.setHeader(
+      "Content-Type",
+      "application/vnd.openxmlformats-officedocument.presentationml.presentation"
+    );
+
     res.send(buffer);
 
   } catch (error) {
-    console.error("Error generando presentación:", error);
+    console.error("ERROR REAL EN /presentation:", error);
     res.status(500).json({ error: "Error generando presentación" });
   }
 });
+
+// ================= FRONT =================
 app.get("*", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "index.html"));
 });
 
+// ================= START =================
 app.listen(port, () => {
   console.log(`Servidor corriendo en http://localhost:${port}`);
 });
