@@ -235,6 +235,9 @@ app.post("/presentation", async (req, res) => {
 });
 
 // ================= FRONT =================
+app.get("/favicon.ico", (req, res) => {
+  res.status(204).end();
+});
 app.get("*", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "index.html"));
 });
