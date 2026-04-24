@@ -1501,6 +1501,22 @@ ${baseQuestion}
       document.documentElement.style.setProperty('--vh', `${window.innerHeight * 0.01}px`);
     }
 
+    function openPresentationModal() {
+  const modal = document.getElementById("presentationModal");
+
+  if (!modal) {
+    console.error("Modal no encontrado");
+    return;
+  }
+
+  modal.classList.add("open");
+}
+
+function closePresentation() {
+  const modal = document.getElementById("presentationModal");
+  modal.classList.remove("open");
+}
+
     window.addEventListener('resize', setFullHeight);
     setFullHeight();
   </script>
