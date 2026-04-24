@@ -3,6 +3,7 @@ import cors from "cors";
 import dotenv from "dotenv";
 import OpenAI from "openai";
 import path from "path";
+import pptxgen from "pptxgenjs";
 import { fileURLToPath } from "url";
 
 dotenv.config();
@@ -146,7 +147,123 @@ app.post("/chat", async (req, res) => {
     });
   }
 });
+app.post("/presentation", async (req, res) => {
+  try {
+    const {
+      title,
+      slideCount,
+      sourceQuestion,
+      sourceAnswer,
+      audienceLevel,
+      deckTone,
+      deckStyle,
+      speakerNotes
+    } = req.body;
 
+    const pptx = new pptxgen();
+    pptx.layout = "LAYOUT_WIDE";
+
+    const bg = "0B1020";
+    const gold = "D4AF37";
+    const white = "F5F7FB";
+    const muted = "C7D0EA";
+
+    function addDecorativeFrame(slide) {
+      slide.background = { color: bg };
+
+      slide.addShape(pptx.ShapeType.rect, {
+        x: 0.25,
+        y: 0.25,
+        w: 12.83,
+        h: 7.0,
+        line: { color: gold, width: 1.2 },
+        fill: { color: bg, transparency: 100 }
+      });
+
+      slide.addShape(pptx.ShapeType.rect, {
+        x: 0.42,
+        y: 0.42,
+        w: 12.49,
+        h: 6.66,
+        line: { color: "6E5A1E", width: 0.7 },
+        fill: { color: bg, transparency: 100 }
+      });
+    }
+
+    function addSlide(slideTitle, bodyText, footer = "Doctor Fidei") {
+      const slide = pptx.addSlide();
+      addDecorativeFrame(slide);
+
+      slide.addText(slideTitle, {
+        x: 0.75,
+        y: 0.55,
+        w: 11.8,
+        h: 0.6,
+        fontFace: "Georgia",
+        fontSize: 27,
+        bold: true,
+        color: gold
+      });
+
+      slide.addText(bodyText || "", {
+        x: 0.85,
+        y: 1.35,
+        w: 11.6,
+        h: 5.2,
+        fontFace: "Georgia",
+        fontSize: 16,
+        color: white,
+        breakLine: false,
+        fit: "shrink"
+      });
+
+      slide.addText(footer, {
+        x: 0.85,
+        y: 6.82,
+        w: 11.6,
+        h: 0.25,
+        fontSize: 9,
+        italic: true,
+        color: muted,
+        align: "center"
+      });
+    }
+
+    addSlide(
+      title || "Capacitación doctrinal",
+      `${sourceQuestion || ""}\n\nEstilo: ${deckStyle || "victoriano-renacentista"}\nNivel: ${audienceLevel || "intermedio"}\nEnfoque: ${deckTone || "catequético"}`
+    );
+
+    const sections = (sourceAnswer || "")
+      .split(/##\s+/)
+      .map(s => s.trim())
+      .filter(Boolean);
+
+    const maxSlides = Number(slideCount || 8) - 1;
+
+    sections.slice(0, maxSlides).forEach(section => {
+      const lines = section.split("\n").filter(Boolean);
+      const slideTitle = lines[0]?.replace(/[#*]/g, "").trim() || "Tema doctrinal";
+      const body = lines.slice(1).join("\n").replace(/\*\*/g, "").slice(0, 1400);
+
+      addSlide(slideTitle, body);
+    });
+
+    if (speakerNotes) {
+      addSlide("Notas para el presentador", speakerNotes);
+    }
+
+    const buffer = await pptx.write({ outputType: "nodebuffer" });
+
+    res.setHeader("Content-Disposition", `attachment; filename="doctor-fidei-presentacion.pptx"`);
+    res.setHeader("Content-Type", "application/vnd.openxmlformats-officedocument.presentationml.presentation");
+    res.send(buffer);
+
+  } catch (error) {
+    console.error("Error generando presentación:", error);
+    res.status(500).json({ error: "Error generando presentación" });
+  }
+});
 app.get("*", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "index.html"));
 });
