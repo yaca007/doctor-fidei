@@ -688,6 +688,45 @@
       line-height: 1.45;
     }
 
+
+    /* -----------------------------------------------------------
+       7.1 MEMORIA, RANKING Y PRESENTACIONES
+    ----------------------------------------------------------- */
+    .memory-row{display:flex;align-items:center;justify-content:space-between;gap:1rem;margin-top:.85rem;padding:.75rem .85rem;border:1px solid rgba(255,255,255,.06);background:rgba(255,255,255,.025);border-radius:var(--radius-sm)}
+    .memory-row span{color:var(--text-soft);font-size:.88rem;font-weight:600}
+    .toggle{position:relative;width:3rem;height:1.55rem;border-radius:999px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.08);cursor:pointer;transition:.25s ease}
+    .toggle:after{content:'';position:absolute;top:.17rem;left:.18rem;width:1.1rem;height:1.1rem;border-radius:50%;background:rgba(255,255,255,.65);transition:.25s ease}
+    .toggle.active{background:rgba(212,175,55,.28);border-color:rgba(212,175,55,.4)}
+    .toggle.active:after{left:1.58rem;background:var(--gold-light);box-shadow:0 0 .7rem rgba(212,175,55,.35)}
+    .small-muted{margin:.6rem 0 0;color:rgba(255,255,255,.44);font-size:.76rem;line-height:1.45}
+    .secondary-btn{margin-top:.8rem;width:100%;border:1px solid rgba(255,255,255,.07);background:rgba(255,255,255,.035);color:var(--text-soft);border-radius:var(--radius-sm);padding:.72rem .8rem;font-weight:700;cursor:pointer;transition:.22s ease}
+    .secondary-btn:hover{border-color:rgba(212,175,55,.24);background:rgba(212,175,55,.07);color:var(--gold-light)}
+    .ranking-list{display:flex;flex-direction:column;gap:.65rem}
+    .ranking-item{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:.7rem;padding:.72rem;border-radius:var(--radius-sm);border:1px solid rgba(255,255,255,.06);background:rgba(255,255,255,.025);cursor:pointer;transition:.22s ease;text-align:left}
+    .ranking-item:hover{border-color:rgba(90,169,255,.22);background:rgba(90,169,255,.055)}
+    .ranking-number{width:1.65rem;height:1.65rem;border-radius:.55rem;display:grid;place-items:center;background:rgba(212,175,55,.09);color:var(--gold-light);font-weight:800;font-size:.78rem}
+    .ranking-question{color:var(--text-soft);font-size:.82rem;line-height:1.35;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;word-break:break-word}
+    .ranking-count{font-size:.75rem;color:rgba(255,255,255,.46);font-weight:700}
+    .empty-ranking{color:rgba(255,255,255,.45);font-size:.84rem;line-height:1.5;padding:.4rem 0}
+    .modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.72);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);z-index:50;display:none;align-items:center;justify-content:center;padding:1rem}
+    .modal-backdrop.open{display:flex;animation:fadeUp .2s ease both}
+    .modal{width:min(720px,100%);max-height:min(86vh,760px);overflow-y:auto;border-radius:var(--radius-lg);border:1px solid rgba(255,255,255,.08);background:rgba(8,13,25,.96);box-shadow:0 2rem 7rem rgba(0,0,0,.62)}
+    .modal-header{padding:1.3rem 1.5rem;border-bottom:1px solid rgba(255,255,255,.07);display:flex;justify-content:space-between;align-items:flex-start;gap:1rem}
+    .modal-header h3{margin:0;font-size:1.05rem;color:#fff7dd}.modal-header p{margin:.35rem 0 0;color:var(--text-muted);line-height:1.5;font-size:.9rem}
+    .modal-close{width:2.2rem;height:2.2rem;border-radius:.7rem;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.04);color:var(--text-soft);cursor:pointer;font-weight:800}
+    .modal-body{padding:1.5rem}.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem}.form-field{display:flex;flex-direction:column;gap:.45rem}.form-field.full{grid-column:1/-1}
+    .form-field label{color:var(--gold-light);font-size:.78rem;text-transform:uppercase;letter-spacing:.09em;font-weight:800}
+    .form-field input,.form-field select,.form-field textarea{width:100%;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.04);color:var(--text-main);border-radius:var(--radius-sm);padding:.8rem .85rem;font:inherit}
+    .form-field select option{background:#0b1020;color:#fff}.form-field textarea{min-height:6rem;resize:vertical;line-height:1.5}
+    .presentation-badge{display:inline-flex;align-items:center;gap:.35rem;margin-top:.9rem;padding:.45rem .65rem;border-radius:999px;border:1px solid rgba(212,175,55,.18);background:rgba(212,175,55,.06);color:#fff4c9;font-size:.78rem;font-weight:700}
+    .modal-actions{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:.8rem;padding:1.2rem 1.5rem;border-top:1px solid rgba(255,255,255,.07);background:rgba(0,0,0,.12)}
+    .primary-btn,.outline-btn{border-radius:var(--radius-sm);padding:.78rem 1rem;font-weight:800;cursor:pointer;transition:.22s ease}.primary-btn{border:none;background:linear-gradient(135deg,var(--gold-main),var(--gold-light));color:#0b0700}.outline-btn{border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.04);color:var(--text-soft)}
+    .primary-btn:hover,.outline-btn:hover{transform:translateY(-.08rem);filter:brightness(1.05)}
+    .toast{position:fixed;right:1rem;bottom:1rem;z-index:80;max-width:min(420px,calc(100vw - 2rem));display:none;padding:.9rem 1rem;border-radius:var(--radius-sm);border:1px solid rgba(212,175,55,.2);background:rgba(8,13,25,.96);color:var(--text-soft);box-shadow:var(--shadow-premium);font-size:.9rem;line-height:1.45}
+    .toast.show{display:block;animation:messagePopIn .2s ease both}
+    @media(max-width:760px){.form-grid{grid-template-columns:1fr}.modal-actions{justify-content:stretch}.primary-btn,.outline-btn{width:100%}}
+
+
     /* -----------------------------------------------------------
        8. RESPONSIVE
     ----------------------------------------------------------- */
@@ -841,6 +880,15 @@
         </p>
       </section>
 
+
+      <section class="side-panel panel-base">
+        <div class="panel-header"><h2 class="panel-title">Memoria persistente</h2></div>
+        <p class="intro-text">Guarda contexto reciente en este navegador para continuar consultas encadenadas.</p>
+        <div class="memory-row"><span>Recordar conversación</span><button class="toggle active" id="memoryToggle" aria-label="Activar o desactivar memoria"></button></div>
+        <button class="secondary-btn" id="clearMemoryBtn">Borrar memoria local</button>
+        <p class="small-muted">La memoria se guarda solo en este dispositivo mediante localStorage.</p>
+      </section>
+
       <section class="side-panel panel-base">
         <div class="panel-header">
           <h2 class="panel-title">Extensión de respuesta</h2>
@@ -893,6 +941,12 @@
             <span class="text">Indulgencias</span>
           </button>
         </div>
+      </section>
+
+
+      <section class="side-panel panel-base">
+        <div class="panel-header"><h2 class="panel-title">Ranking de preguntas</h2></div>
+        <div class="ranking-list" id="rankingList"><div class="empty-ranking">Todavía no hay preguntas frecuentes. El ranking se irá formando con el uso.</div></div>
       </section>
 
       <section class="side-panel panel-base">
@@ -952,6 +1006,29 @@
 
   </div>
 
+  <div class="modal-backdrop" id="presentationModal" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="presentationTitle">
+      <div class="modal-header">
+        <div><h3 id="presentationTitle">Generar presentación de capacitación</h3><p>Preparará un deck a partir de la última respuesta, con enfoque catequético y estética victoriana-renacentista.</p></div>
+        <button class="modal-close" id="closePresentationModal">×</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-grid">
+          <div class="form-field full"><label for="deckTitle">Título de la presentación</label><input id="deckTitle" value="Capacitación doctrinal - Doctor Fidei" /></div>
+          <div class="form-field"><label for="slideCount">Cantidad de slides</label><select id="slideCount"><option value="6">6 slides</option><option value="8" selected>8 slides</option><option value="10">10 slides</option><option value="12">12 slides</option></select></div>
+          <div class="form-field"><label for="audienceLevel">Nivel de audiencia</label><select id="audienceLevel"><option value="introductorio">Introductorio</option><option value="intermedio" selected>Intermedio</option><option value="avanzado">Avanzado</option></select></div>
+          <div class="form-field"><label for="deckTone">Enfoque</label><select id="deckTone"><option value="catequetico" selected>Catequético</option><option value="apologetico">Apologético</option><option value="academico">Académico</option></select></div>
+          <div class="form-field"><label for="deckStyle">Estilo visual</label><select id="deckStyle"><option value="victoriano-renacentista" selected>Victoriano-renacentista</option><option value="manuscrito-iluminado">Manuscrito iluminado</option><option value="vaticano-sobrio">Vaticano sobrio</option></select></div>
+          <div class="form-field full"><label for="speakerNotes">Notas para el presentador</label><textarea id="speakerNotes" placeholder="Ej: incluir ejemplos para jóvenes, tono pastoral, preparar objeciones protestantes..."></textarea></div>
+        </div>
+        <div class="presentation-badge">✦ Requiere backend: endpoint /presentation para generar el PPTX real.</div>
+      </div>
+      <div class="modal-actions"><button class="outline-btn" id="copyDeckPromptBtn">Copiar prompt del deck</button><button class="primary-btn" id="generateDeckBtn">Generar presentación</button></div>
+    </div>
+  </div>
+  <div class="toast" id="toast"></div>
+
+
   <script>
     const chat = document.getElementById('chat');
     const input = document.getElementById('question');
@@ -963,11 +1040,24 @@
     const toneOptions = document.querySelectorAll('.tone-option');
     const statusBadge = document.getElementById('statusBadge');
     const statusText = document.getElementById('statusText');
+    const memoryToggle = document.getElementById('memoryToggle');
+    const clearMemoryBtn = document.getElementById('clearMemoryBtn');
+    const rankingList = document.getElementById('rankingList');
+    const presentationModal = document.getElementById('presentationModal');
+    const closePresentationModal = document.getElementById('closePresentationModal');
+    const generateDeckBtn = document.getElementById('generateDeckBtn');
+    const copyDeckPromptBtn = document.getElementById('copyDeckPromptBtn');
+    const toast = document.getElementById('toast');
+
+    const STORAGE_KEYS = { memoryEnabled: 'doctorFidei.memoryEnabled', conversation: 'doctorFidei.conversationMemory', ranking: 'doctorFidei.questionRanking', lastAnswer: 'doctorFidei.lastAnswer', lastQuestion: 'doctorFidei.lastQuestion' };
 
     let responseMode = 'breve';
     let responseTone = 'pastoral';
-    let conversationMemory = [];
-    let lastBotReply = '';
+    let memoryEnabled = localStorage.getItem(STORAGE_KEYS.memoryEnabled) === null ? true : localStorage.getItem(STORAGE_KEYS.memoryEnabled) === 'true';
+    let conversationMemory = JSON.parse(localStorage.getItem(STORAGE_KEYS.conversation) || '[]');
+    let questionRanking = JSON.parse(localStorage.getItem(STORAGE_KEYS.ranking) || '[]');
+    let lastBotReply = localStorage.getItem(STORAGE_KEYS.lastAnswer) || '';
+    let lastQuestion = localStorage.getItem(STORAGE_KEYS.lastQuestion) || '';
 
     function setStatus(state, label) {
       statusBadge.classList.remove('consulting', 'error');
@@ -981,6 +1071,61 @@
       }
 
       statusText.textContent = label;
+    }
+
+
+    function showToast(message, duration = 3000) {
+      toast.textContent = message;
+      toast.classList.add('show');
+      clearTimeout(showToast.timer);
+      showToast.timer = setTimeout(() => toast.classList.remove('show'), duration);
+    }
+
+    function saveConversationMemory() {
+      if (!memoryEnabled) return;
+      conversationMemory = conversationMemory.slice(-12);
+      localStorage.setItem(STORAGE_KEYS.conversation, JSON.stringify(conversationMemory));
+    }
+
+    function normalizeQuestion(question) {
+      return question.toLowerCase().replace(/[¿?¡!.,;:]/g, '').replace(/\s+/g, ' ').trim();
+    }
+
+    function registerQuestion(question) {
+      const normalized = normalizeQuestion(question);
+      if (!normalized || normalized.length < 8) return;
+      const existing = questionRanking.find(item => item.normalized === normalized);
+      if (existing) {
+        existing.count += 1;
+        existing.lastAskedAt = Date.now();
+      } else {
+        questionRanking.push({ question, normalized, count: 1, lastAskedAt: Date.now() });
+      }
+      questionRanking.sort((a,b) => b.count - a.count || b.lastAskedAt - a.lastAskedAt);
+      questionRanking = questionRanking.slice(0,30);
+      localStorage.setItem(STORAGE_KEYS.ranking, JSON.stringify(questionRanking));
+      renderRanking();
+    }
+
+    function renderRanking() {
+      const top = questionRanking.slice(0,5);
+      if (!top.length) {
+        rankingList.innerHTML = '<div class="empty-ranking">Todavía no hay preguntas frecuentes. El ranking se irá formando con el uso.</div>';
+        return;
+      }
+      rankingList.innerHTML = '';
+      top.forEach((item, index) => {
+        const row = document.createElement('button');
+        row.className = 'ranking-item';
+        row.innerHTML = `<span class="ranking-number">${index + 1}</span><span class="ranking-question">${escapeHtml(item.question)}</span><span class="ranking-count">${item.count}×</span>`;
+        row.addEventListener('click', () => { input.value = item.question; autoResizeTextarea(); input.focus(); });
+        rankingList.appendChild(row);
+      });
+    }
+
+    function syncMemoryUI() {
+      memoryToggle.classList.toggle('active', memoryEnabled);
+      memoryToggle.setAttribute('aria-pressed', String(memoryEnabled));
     }
 
     function autoResizeTextarea() {
@@ -1162,8 +1307,14 @@
           sendMessage(debatePrompt, { hiddenUserPrompt: 'Convertir la última respuesta en versión breve para debate.' });
         });
 
+        const deckBtn = document.createElement('button');
+        deckBtn.className = 'mini-action';
+        deckBtn.textContent = 'Generar presentación';
+        deckBtn.addEventListener('click', () => { lastBotReply = content; localStorage.setItem(STORAGE_KEYS.lastAnswer, content); openPresentationModal(); });
+
         actions.appendChild(copyBtn);
         actions.appendChild(debateBtn);
+        actions.appendChild(deckBtn);
         card.appendChild(actions);
       }
 
@@ -1188,10 +1339,9 @@
     }
 
     function buildContextualPrompt(baseQuestion) {
-      const recentContext = conversationMemory
-        .slice(-6)
-        .map(item => `${item.role === 'user' ? 'Usuario' : 'Doctor Fidei'}: ${item.content}`)
-        .join('\n\n');
+      const recentContext = memoryEnabled
+        ? conversationMemory.slice(-8).map(item => `${item.role === 'user' ? 'Usuario' : 'Doctor Fidei'}: ${item.content}`).join('\n\n')
+        : 'Memoria desactivada. Responder solo la pregunta actual.';
 
       return `
 Modo de extensión solicitado: ${responseMode}.
@@ -1228,9 +1378,13 @@ ${baseQuestion}
       appendMessage('user', visibleQuestion, { actions: false });
 
       if (!options.hiddenUserPrompt) {
-        conversationMemory.push({ role: 'user', content: baseQuestion });
-      } else {
-        conversationMemory.push({ role: 'user', content: visibleQuestion });
+        registerQuestion(baseQuestion);
+        lastQuestion = baseQuestion;
+        localStorage.setItem(STORAGE_KEYS.lastQuestion, baseQuestion);
+      }
+      if (memoryEnabled) {
+        conversationMemory.push({ role: 'user', content: options.hiddenUserPrompt ? visibleQuestion : baseQuestion });
+        saveConversationMemory();
       }
 
       input.value = '';
@@ -1260,7 +1414,11 @@ ${baseQuestion}
         } else {
           const reply = data.reply || 'No se recibió una respuesta válida.';
           lastBotReply = reply;
-          conversationMemory.push({ role: 'assistant', content: reply });
+          localStorage.setItem(STORAGE_KEYS.lastAnswer, reply);
+          if (memoryEnabled) {
+            conversationMemory.push({ role: 'assistant', content: reply });
+            saveConversationMemory();
+          }
           appendMessage('bot', reply);
           setStatus('ready', 'Listo');
         }
@@ -1279,6 +1437,7 @@ ${baseQuestion}
 
     clearBtn.addEventListener('click', () => {
       conversationMemory = [];
+      if (memoryEnabled) localStorage.removeItem(STORAGE_KEYS.conversation);
       lastBotReply = '';
       chat.innerHTML = `
         <div class="message-row bot">
