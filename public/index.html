@@ -4,28 +4,34 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>Doctor Fidei - Asistente Doctrinal</title>
+
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  
+
   <style>
     /* -----------------------------------------------------------
-       1. VARIABLES Y RESETEO (Fluido y Acorde al Logo)
+       1. VARIABLES Y RESETEO
     ----------------------------------------------------------- */
     :root {
-      --bg-dark: #03050a; /* Fondo ultra oscuro */
-      --bg-panel: rgba(13, 20, 38, 0.6); /* Cristal esmerilado oscuro */
-      --gold-main: #d4af37; /* Dorado metálico del logo */
-      --gold-light: #f4dc92; /* Dorado claro acentos */
-      --text-main: #f5f7fb; /* Blanco azulado */
-      --text-muted: #98a4c7; /* Texto secundario */
-      --accent-blue: #5aa9ff; /* Azul interactivo */
-      
-      /* Sombras y Efectos Premium */
+      --bg-dark: #03050a;
+      --bg-panel: rgba(13, 20, 38, 0.62);
+      --bg-panel-strong: rgba(8, 13, 25, 0.86);
+      --gold-main: #d4af37;
+      --gold-light: #f4dc92;
+      --gold-soft-bg: rgba(212, 175, 55, 0.08);
+      --text-main: #f5f7fb;
+      --text-muted: #98a4c7;
+      --text-soft: #cfd6eb;
+      --accent-blue: #5aa9ff;
+      --accent-blue-soft: rgba(90, 169, 255, 0.1);
+      --success: #22c55e;
+      --warning: #facc15;
+      --danger: #ef4444;
+
       --shadow-premium: 0 1rem 3rem -0.5rem rgba(0, 0, 0, 0.5);
       --glow-gold: 0 0 1rem rgba(212, 175, 55, 0.3);
-      
-      /* Radios y Espaciado Fluidos (usando rem) */
+
       --radius-lg: 1.5rem;
       --radius-md: 1rem;
       --radius-sm: 0.75rem;
@@ -40,14 +46,18 @@
     html, body {
       margin: 0;
       padding: 0;
-      min-height: 100%; /* Permitir crecimiento natural */
+      min-height: 100%;
       width: 100%;
       font-family: 'Inter', sans-serif;
       background-color: var(--bg-dark);
       color: var(--text-main);
-      overflow-x: hidden; /* Evitar scroll horizontal accidental */
-      overflow-y: auto; /* Permitir scroll vertical natural en el body */
+      overflow-x: hidden;
+      overflow-y: auto;
       -webkit-font-smoothing: antialiased;
+    }
+
+    button, textarea {
+      font-family: inherit;
     }
 
     /* -----------------------------------------------------------
@@ -57,21 +67,35 @@
       position: fixed;
       inset: 0;
       z-index: -1;
-      background: 
-        radial-gradient(circle at 10% 10%, rgba(212, 175, 55, 0.05), transparent 40%),
-        radial-gradient(circle at 90% 90%, rgba(90, 169, 255, 0.05), transparent 40%);
+      background:
+        radial-gradient(circle at 10% 10%, rgba(212, 175, 55, 0.07), transparent 42%),
+        radial-gradient(circle at 90% 90%, rgba(90, 169, 255, 0.06), transparent 42%),
+        linear-gradient(135deg, #03050a 0%, #060b17 50%, #02030a 100%);
     }
 
     .app-background::before {
       content: '';
       position: absolute;
       inset: 0;
-      background-image: url('data:image/svg+xml,%3Csvg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"%3E%3Cg fill="none" fill-rule="evenodd"%3E%3Cg fill="%23fff" fill-opacity="0.02"%3E%3Cpath d="M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6zM36 4V0h-2v4h-4v2h4v4h2V6h4V4h-4z"/%3E%3C/g%3E%3C/g%3E%3C/svg%3E');
-      opacity: 0.5;
+      background-image: url('data:image/svg+xml,%3Csvg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"%3E%3Cg fill="none" fill-rule="evenodd"%3E%3Cg fill="%23fff" fill-opacity="0.023"%3E%3Cpath d="M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6zM36 4V0h-2v4h-4v2h4v4h2V6h4V4h-4z"/%3E%3C/g%3E%3C/g%3E%3C/svg%3E');
+      opacity: 0.55;
+    }
+
+    .app-background::after {
+      content: '';
+      position: absolute;
+      width: 30rem;
+      height: 30rem;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(212,175,55,0.12), transparent 62%);
+      top: 12%;
+      right: 8%;
+      filter: blur(2rem);
+      animation: slowFloat 10s ease-in-out infinite;
     }
 
     /* -----------------------------------------------------------
-       3. LAYOUT PRINCIPAL (TOTALMENTE FLUIDO)
+       3. LAYOUT PRINCIPAL
     ----------------------------------------------------------- */
     .app-shell {
       display: flex;
@@ -82,29 +106,28 @@
       width: 100%;
     }
 
-    /* Responsive Layout Desktop: Grid Fluido */
     @media (min-width: 1024px) {
       .app-shell {
         display: grid;
-        grid-template-areas: 
+        grid-template-areas:
           "header header"
           "sidebar main";
-        grid-template-columns: 2fr 5fr; /* 2 partes sidebar, 5 partes main - Totalmente fluido */
+        grid-template-columns: minmax(320px, 2fr) minmax(0, 5fr);
+        grid-template-rows: auto minmax(0, 1fr);
       }
     }
 
-    /* Panel base fluidos */
     .panel-base {
       background-color: var(--bg-panel);
       backdrop-filter: blur(20px);
       -webkit-backdrop-filter: blur(20px);
-      border: 1px solid rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.065);
       border-radius: var(--radius-lg);
       box-shadow: var(--shadow-premium);
     }
 
     /* -----------------------------------------------------------
-       4. CABECERA Y LOGO (Integración de la Insignia)
+       4. CABECERA
     ----------------------------------------------------------- */
     .app-header {
       grid-area: header;
@@ -120,17 +143,18 @@
       display: flex;
       align-items: center;
       gap: 1.5rem;
-      flex-wrap: wrap; /* Permitir ajuste en móviles muy pequeños */
+      flex-wrap: wrap;
     }
 
-    /* Contenedor del Logo Fluido */
     .brand-logo-container {
       position: relative;
-      width: clamp(50px, 10vw, 70px); /* Tamaño fluido con mínimo y máximo */
+      width: clamp(50px, 10vw, 70px);
       height: clamp(50px, 10vw, 70px);
       border-radius: 50%;
       overflow: hidden;
       box-shadow: var(--glow-gold);
+      border: 1px solid rgba(212, 175, 55, 0.18);
+      background: rgba(212,175,55,0.08);
     }
 
     .brand-logo {
@@ -139,209 +163,646 @@
       object-fit: cover;
     }
 
-    /* Efecto Brillo Metálico Animado */
     .brand-logo-container::after {
       content: '';
       position: absolute;
-      top: -50%; left: -50%;
-      width: 200%; height: 200%;
-      background: linear-gradient(45deg, transparent 45%, rgba(255, 255, 255, 0.1) 50%, transparent 55%);
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: linear-gradient(45deg, transparent 45%, rgba(255, 255, 255, 0.12) 50%, transparent 55%);
       animation: metallicShine 5s infinite;
     }
 
     .brand-text h1 {
       margin: 0;
       font-family: 'Cinzel Decorative', serif;
-      font-size: clamp(1.4rem, 4vw, 1.8rem); /* Texto fluido */
+      font-size: clamp(1.4rem, 4vw, 1.9rem);
       color: #fff;
       letter-spacing: 0.05em;
+      text-shadow: 0 0 1.5rem rgba(212,175,55,0.18);
     }
 
-    .brand-text h1 span { color: var(--gold-main); }
-    .brand-text p { margin: 0.2rem 0 0; font-size: 0.95rem; color: var(--text-muted); }
+    .brand-text h1 span {
+      color: var(--gold-main);
+    }
 
-    /* Estado Conexión */
+    .brand-text p {
+      margin: 0.2rem 0 0;
+      font-size: 0.95rem;
+      color: var(--text-muted);
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
     .status-badge {
-      display: flex; align-items: center; gap: 0.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
       padding: 0.5rem 1rem;
-      font-size: 0.85rem; font-weight: 600;
+      font-size: 0.85rem;
+      font-weight: 600;
       background-color: rgba(34, 197, 94, 0.1);
       border: 1px solid rgba(34, 197, 94, 0.3);
       border-radius: 999px;
+      color: #e9ffee;
+      transition: 0.25s ease;
     }
-    .status-dot { width: 0.5rem; height: 0.5rem; background-color: #22c55e; border-radius: 50%; animation: pulseGreen 2s infinite; }
+
+    .status-badge.consulting {
+      background-color: rgba(250, 204, 21, 0.1);
+      border-color: rgba(250, 204, 21, 0.28);
+      color: #fff6bf;
+    }
+
+    .status-badge.error {
+      background-color: rgba(239, 68, 68, 0.1);
+      border-color: rgba(239, 68, 68, 0.28);
+      color: #ffd7d7;
+    }
+
+    .status-dot {
+      width: 0.5rem;
+      height: 0.5rem;
+      background-color: var(--success);
+      border-radius: 50%;
+      animation: pulseGreen 2s infinite;
+    }
+
+    .status-badge.consulting .status-dot {
+      background-color: var(--warning);
+      animation: pulseYellow 1.2s infinite;
+    }
+
+    .status-badge.error .status-dot {
+      background-color: var(--danger);
+      animation: none;
+    }
 
     /* -----------------------------------------------------------
-       5. BARRA LATERAL (SIDEBAR) - Fluida
+       5. SIDEBAR
     ----------------------------------------------------------- */
     .app-sidebar {
       grid-area: sidebar;
-      display: flex; flex-direction: column; gap: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
       animation: fadeUp 0.8s ease-out 0.2s both;
     }
 
-    /* Paneles Sidebar */
     .side-panel {
       padding: 1.5rem;
       width: 100%;
     }
 
-    .panel-header { margin-bottom: 1.2rem; }
-    .panel-title { margin: 0; font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.15em; color: var(--gold-light); }
+    .panel-header {
+      margin-bottom: 1.2rem;
+    }
 
-    /* Selector de modo fluida */
+    .panel-title {
+      margin: 0;
+      font-size: 0.8rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      color: var(--gold-light);
+    }
+
+    .intro-text {
+      margin: 0;
+      font-size: 0.95rem;
+      line-height: 1.65;
+      color: var(--text-muted);
+    }
+
     .mode-selector {
-      display: grid; grid-template-columns: 1fr 1fr; gap: 0.3rem;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.3rem;
       background-color: rgba(0, 0, 0, 0.2);
-      border-radius: var(--radius-sm); padding: 0.3rem;
+      border-radius: var(--radius-sm);
+      padding: 0.3rem;
       border: 1px solid rgba(255, 255, 255, 0.06);
     }
-    .mode-option {
-      padding: 0.6rem; text-align: center; font-size: 0.9rem; font-weight: 600;
-      color: var(--text-muted); cursor: pointer;
-      border-radius: calc(var(--radius-sm) - 0.2rem); transition: 0.3s;
+
+    .tone-selector {
+      grid-template-columns: 1fr;
     }
-    .mode-option.active {
-      color: #000; background: linear-gradient(135deg, var(--gold-main), var(--gold-light));
+
+    .mode-option,
+    .tone-option {
+      padding: 0.62rem;
+      text-align: center;
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      cursor: pointer;
+      border-radius: calc(var(--radius-sm) - 0.2rem);
+      transition: 0.25s ease;
+      user-select: none;
+    }
+
+    .tone-option {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+      text-align: left;
+      padding: 0.72rem 0.8rem;
+    }
+
+    .tone-option small {
+      color: rgba(255,255,255,0.45);
+      font-weight: 500;
+    }
+
+    .mode-option.active,
+    .tone-option.active {
+      color: #000;
+      background: linear-gradient(135deg, var(--gold-main), var(--gold-light));
       box-shadow: 0 0.2rem 1rem rgba(212, 175, 55, 0.3);
     }
 
-    /* Accesos rápidos - Grid totalmente responsive */
+    .tone-option.active small {
+      color: rgba(0,0,0,0.66);
+    }
+
     .quick-actions-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); /* Totalmente fluido, se ajusta al ancho */
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
       gap: 1rem;
       width: 100%;
     }
 
     .quick-action-card {
-      display: flex; align-items: center; gap: 1rem;
-      padding: 1.2rem; background-color: rgba(255, 255, 255, 0.02);
-      border: 1px solid rgba(255, 255, 255, 0.06); border-radius: var(--radius-md);
-      cursor: pointer; transition: 0.3s; color: var(--text-main); width: 100%;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 1.05rem;
+      background-color: rgba(255, 255, 255, 0.025);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      transition: 0.25s ease;
+      color: var(--text-main);
+      width: 100%;
+      text-align: left;
     }
-    .quick-action-card:hover { background-color: rgba(90, 169, 255, 0.05); border-color: rgba(90, 169, 255, 0.2); transform: translateY(-0.2rem); }
-    .quick-action-card .icon { font-size: 1.2rem; color: var(--gold-main); }
-    .quick-action-card .text { font-weight: 500; font-size: 0.9rem; line-height: 1.4; }
+
+    .quick-action-card:hover {
+      background-color: rgba(90, 169, 255, 0.06);
+      border-color: rgba(90, 169, 255, 0.22);
+      transform: translateY(-0.2rem);
+    }
+
+    .quick-action-card .icon {
+      width: 2.1rem;
+      height: 2.1rem;
+      display: grid;
+      place-items: center;
+      border-radius: 0.75rem;
+      background: rgba(212,175,55,0.08);
+      font-size: 1.1rem;
+      color: var(--gold-main);
+      flex: 0 0 auto;
+    }
+
+    .quick-action-card .text {
+      font-weight: 600;
+      font-size: 0.9rem;
+      line-height: 1.35;
+    }
+
+    .category-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 0.75rem;
+    }
+
+    .category-btn {
+      border: 1px solid rgba(255,255,255,0.06);
+      background: rgba(255,255,255,0.025);
+      color: var(--text-soft);
+      border-radius: var(--radius-sm);
+      padding: 0.8rem 0.9rem;
+      cursor: pointer;
+      text-align: left;
+      display: flex;
+      justify-content: space-between;
+      gap: 1rem;
+      transition: 0.25s ease;
+      font-weight: 600;
+    }
+
+    .category-btn:hover {
+      border-color: rgba(212,175,55,0.25);
+      background: rgba(212,175,55,0.055);
+      transform: translateX(0.15rem);
+    }
+
+    .category-btn span:last-child {
+      color: var(--gold-light);
+      opacity: 0.85;
+    }
 
     /* -----------------------------------------------------------
-       6. ÁREA PRINCIPAL DE CHAT (Grid Interno Adaptado)
+       6. ÁREA PRINCIPAL DE CHAT
     ----------------------------------------------------------- */
     .app-main {
       grid-area: main;
-      display: flex; flex-direction: column; /* Cambiado a flex para control interno */
-      min-height: 100%; /* Crecimiento fluido */
+      display: flex;
+      flex-direction: column;
+      min-height: 100%;
       animation: fadeUp 0.8s ease-out 0.4s both;
+      overflow: hidden;
     }
 
-    /* Contenedor de mensajes fluida */
     .chat-container {
-      flex: 1; /* Ocupar todo el espacio disponible */
+      flex: 1;
       padding: 1.5rem;
-      display: flex; flex-direction: column; gap: 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
       width: 100%;
+      min-height: 52vh;
     }
 
-    /* Burbujas de mensaje fluidas */
-    .message-row { display: flex; width: 100%; animation: messagePopIn 0.4s ease-out both; }
-    .message-row.user { justify-content: flex-end; }
-    .message-row.bot { justify-content: flex-start; }
+    .message-row {
+      display: flex;
+      width: 100%;
+      animation: messagePopIn 0.4s ease-out both;
+    }
+
+    .message-row.user {
+      justify-content: flex-end;
+    }
+
+    .message-row.bot {
+      justify-content: flex-start;
+    }
+
+    .message-card {
+      max-width: 88%;
+      border-radius: var(--radius-md);
+      word-wrap: break-word;
+      overflow: hidden;
+    }
+
+    .message-row.user .message-card {
+      background: linear-gradient(135deg, rgba(90, 169, 255, 0.16), rgba(90, 169, 255, 0.055));
+      color: #fff;
+      border: 1px solid rgba(90, 169, 255, 0.22);
+      border-bottom-right-radius: 0.25rem;
+    }
+
+    .message-row.bot .message-card {
+      background-color: rgba(255, 255, 255, 0.032);
+      color: var(--text-main);
+      border: 1px solid rgba(255, 255, 255, 0.065);
+      border-bottom-left-radius: 0.25rem;
+    }
 
     .message-content {
-      max-width: 85%; /* Ancho fluido */
-      padding: 1rem; font-size: 0.98rem; line-height: 1.6;
-      border-radius: var(--radius-md); word-wrap: break-word;
+      padding: 1rem;
+      font-size: 0.98rem;
+      line-height: 1.68;
     }
 
-    /* Estilo Usuario */
-    .message-row.user .message-content {
-      background: linear-gradient(135deg, rgba(90, 169, 255, 0.15), rgba(90, 169, 255, 0.05));
-      color: #fff; border: 1px solid rgba(90, 169, 255, 0.2);
-      border-bottom-right-radius: 0.2rem;
+    .message-content b,
+    .message-content strong {
+      color: var(--gold-light);
+      font-weight: 700;
     }
 
-    /* Estilo Bot */
-    .message-row.bot .message-content {
-      background-color: rgba(255, 255, 255, 0.03);
-      color: var(--text-main); border: 1px solid rgba(255, 255, 255, 0.06);
-      border-bottom-left-radius: 0.2rem;
-    }
-
-    /* Formateo mensajes */
-    .message-content b { color: var(--gold-light); font-weight: 600; }
-    .message-content blockquote {
-      margin: 0.8rem 0; padding: 0.6rem 1rem;
+    .message-content h3 {
+      margin: 1rem 0 0.55rem;
+      padding: 0.6rem 0.75rem;
       border-left: 0.2rem solid var(--gold-main);
-      background-color: rgba(212, 175, 55, 0.05); border-radius: 0.3rem;
+      border-radius: 0.35rem;
+      background: rgba(212, 175, 55, 0.06);
+      color: #fff4cc;
+      font-size: 1rem;
     }
 
-    /* typing avanzado fluida */
-    .typing-indicator { display: flex; align-items: center; gap: 0.8rem; color: var(--text-muted); font-size: 0.9rem; }
-    .typing-dots { display: flex; gap: 0.3rem; }
-    .typing-dots span { width: 0.5rem; height: 0.5rem; background-color: var(--gold-main); border-radius: 50%; opacity: 0.4; animation: typingDot 1.4s infinite ease-in-out; }
-    .typing-dots span:nth-child(2) { animation-delay: 0.2s; }
-    .typing-dots span:nth-child(3) { animation-delay: 0.4s; }
+    .message-content h3:first-child {
+      margin-top: 0;
+    }
+
+    .message-content ul,
+    .message-content ol {
+      margin: 0.65rem 0 0.85rem;
+      padding-left: 1.35rem;
+    }
+
+    .message-content li {
+      margin: 0.35rem 0;
+    }
+
+    .message-content blockquote {
+      margin: 0.8rem 0;
+      padding: 0.75rem 1rem;
+      border-left: 0.2rem solid var(--gold-main);
+      background-color: rgba(212, 175, 55, 0.055);
+      border-radius: 0.3rem;
+      color: #fff6d7;
+    }
+
+    .source-box {
+      margin-top: 0.9rem;
+      padding: 0.85rem 1rem;
+      border: 1px solid rgba(212, 175, 55, 0.18);
+      border-radius: 0.85rem;
+      background: rgba(212, 175, 55, 0.06);
+      color: #fff7dc;
+      font-size: 0.92rem;
+    }
+
+    .source-box-title {
+      display: block;
+      margin-bottom: 0.35rem;
+      color: var(--gold-light);
+      font-weight: 800;
+      letter-spacing: 0.03em;
+    }
+
+    .message-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.55rem;
+      padding: 0.75rem 1rem 1rem;
+      border-top: 1px solid rgba(255,255,255,0.055);
+      background: rgba(0,0,0,0.12);
+    }
+
+    .mini-action {
+      border: 1px solid rgba(255,255,255,0.08);
+      background: rgba(255,255,255,0.035);
+      color: var(--text-soft);
+      border-radius: 999px;
+      padding: 0.46rem 0.72rem;
+      font-size: 0.78rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: 0.22s ease;
+    }
+
+    .mini-action:hover {
+      background: rgba(212,175,55,0.1);
+      color: var(--gold-light);
+      border-color: rgba(212,175,55,0.25);
+      transform: translateY(-0.08rem);
+    }
+
+    .typing-indicator {
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+    }
+
+    .typing-dots {
+      display: flex;
+      gap: 0.3rem;
+    }
+
+    .typing-dots span {
+      width: 0.5rem;
+      height: 0.5rem;
+      background-color: var(--gold-main);
+      border-radius: 50%;
+      opacity: 0.4;
+      animation: typingDot 1.4s infinite ease-in-out;
+    }
+
+    .typing-dots span:nth-child(2) {
+      animation-delay: 0.2s;
+    }
+
+    .typing-dots span:nth-child(3) {
+      animation-delay: 0.4s;
+    }
 
     /* -----------------------------------------------------------
-       7. ÁREA DE ENTRADA (STICKY EN LA PARTE INFERIOR)
+       7. ÁREA DE ENTRADA
     ----------------------------------------------------------- */
     .chat-input-sticky-area {
-      position: sticky; /* Adhesivo */
+      position: sticky;
       bottom: 0;
       width: 100%;
       padding: 1.2rem;
-      background-color: rgba(3, 5, 10, 0.8); /* Fondo semi-traslúcido */
+      background-color: rgba(3, 5, 10, 0.84);
       backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
       border-top: 1px solid rgba(255, 255, 255, 0.06);
-      margin-top: auto; /* Empujar hacia abajo */
+      margin-top: auto;
     }
 
     .input-wrapper {
-      display: flex; align-items: flex-end; gap: 0.8rem;
+      display: flex;
+      align-items: flex-end;
+      gap: 0.8rem;
       background-color: rgba(255, 255, 255, 0.03);
       border: 1px solid rgba(255, 255, 255, 0.06);
-      border-radius: var(--radius-md); padding: 0.6rem;
+      border-radius: var(--radius-md);
+      padding: 0.6rem;
+      transition: 0.25s ease;
     }
-    .input-wrapper:focus-within { border-color: rgba(90, 169, 255, 0.4); background-color: rgba(255, 255, 255, 0.05); }
+
+    .input-wrapper:focus-within {
+      border-color: rgba(90, 169, 255, 0.4);
+      background-color: rgba(255, 255, 255, 0.05);
+    }
 
     #question {
-      flex: 1; background: transparent; border: none;
-      color: var(--text-main); font-family: inherit; font-size: 1rem;
-      line-height: 1.5; padding: 0.5rem; resize: none;
-      min-height: 2.5rem; /* Altura base fluida */
-      max-height: 10rem; /* Límite de crecimiento fluida */
+      flex: 1;
+      background: transparent;
+      border: none;
+      color: var(--text-main);
+      font-family: inherit;
+      font-size: 1rem;
+      line-height: 1.5;
+      padding: 0.5rem;
+      resize: none;
+      min-height: 2.5rem;
+      max-height: 10rem;
     }
-    #question::placeholder { color: var(--text-muted); }
 
-    /* Botones fluida */
+    #question::placeholder {
+      color: var(--text-muted);
+    }
+
     .action-btn {
-      display: flex; align-items: center; justify-content: center;
-      width: 2.5rem; height: 2.5rem; /* Botones fluidos */
-      border-radius: var(--radius-sm); border: none; cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 2.5rem;
+      height: 2.5rem;
+      border-radius: var(--radius-sm);
+      border: none;
+      cursor: pointer;
+      transition: 0.22s ease;
     }
-    .btn-clear { background-color: rgba(255, 255, 255, 0.03); color: var(--text-muted); border: 1px solid rgba(255, 255, 255, 0.06); }
-    .btn-clear:hover { background-color: rgba(239, 68, 68, 0.1); color: #ef4444; border-color: rgba(239, 68, 68, 0.3); }
-    .btn-send { background: linear-gradient(135deg, var(--gold-main), var(--gold-light)); color: #000; font-weight: 700; font-size: 1.1rem; }
-    .btn-send:hover:not(:disabled) { transform: translateY(-0.1rem); }
-    .btn-send:disabled { opacity: 0.5; cursor: not-allowed; }
 
-    /* Responsive Input Mobile */
-    @media (max-width: 600px) {
-      .chat-input-sticky-area { padding: 0.8rem; padding-bottom: calc(0.8rem + env(safe-area-inset-bottom)); }
-      #question { font-size: 0.95rem; }
-      .action-btn { width: 2.2rem; height: 2.2rem; }
+    .btn-clear {
+      background-color: rgba(255, 255, 255, 0.035);
+      color: var(--text-muted);
+      border: 1px solid rgba(255, 255, 255, 0.065);
+    }
+
+    .btn-clear:hover {
+      background-color: rgba(239, 68, 68, 0.1);
+      color: #ffb0b0;
+      border-color: rgba(239, 68, 68, 0.3);
+    }
+
+    .btn-send {
+      background: linear-gradient(135deg, var(--gold-main), var(--gold-light));
+      color: #000;
+      font-weight: 800;
+      font-size: 1.1rem;
+      box-shadow: 0 0.5rem 1.5rem rgba(212,175,55,0.18);
+    }
+
+    .btn-send:hover:not(:disabled) {
+      transform: translateY(-0.1rem);
+    }
+
+    .btn-send:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .footer-warning {
+      margin: 0.7rem 0 0;
+      text-align: center;
+      font-size: 0.76rem;
+      color: rgba(255,255,255,0.46);
+      padding: 0 0.5rem;
+      line-height: 1.45;
     }
 
     /* -----------------------------------------------------------
-       8. KEYFRAMES (ANIMACIONES)
+       8. RESPONSIVE
     ----------------------------------------------------------- */
-    @keyframes metallicShine { 0% { transform: translate(-50%, -50%) rotate(0deg); opacity: 0; } 10% { opacity: 1; } 20% { transform: translate(50%, 50%) rotate(0deg); opacity: 0; } 100% { opacity: 0; } }
-    @keyframes pulseGreen { 0% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.4); } 70% { box-shadow: 0 0 0 0.8rem rgba(34, 197, 94, 0); } 100% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); } }
-    @keyframes slideDown { from { transform: translateY(-2rem); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-    @keyframes fadeUp { from { transform: translateY(2rem); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-    @keyframes messagePopIn { from { transform: scale(0.9) translateY(0.8rem); opacity: 0; } to { transform: scale(1) translateY(0); opacity: 1; } }
-    @keyframes typingDot { 0%, 60%, 100% { transform: translateY(0); opacity: 0.4; } 30% { transform: translateY(-0.4rem); opacity: 1; } }
+    @media (min-width: 1200px) {
+      .app-main {
+        max-height: calc(100vh - 8.5rem);
+      }
 
+      .chat-container {
+        overflow-y: auto;
+        scroll-behavior: smooth;
+      }
+
+      .chat-container::-webkit-scrollbar {
+        width: 0.65rem;
+      }
+
+      .chat-container::-webkit-scrollbar-thumb {
+        background: rgba(255,255,255,0.11);
+        border-radius: 999px;
+      }
+    }
+
+    @media (max-width: 760px) {
+      .app-shell {
+        padding: 0.9rem;
+        gap: 0.9rem;
+      }
+
+      .app-header {
+        padding: 1rem;
+      }
+
+      .header-actions {
+        width: 100%;
+        justify-content: flex-start;
+      }
+
+      .side-panel {
+        padding: 1rem;
+      }
+
+      .quick-actions-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .message-card {
+        max-width: 100%;
+      }
+
+      .chat-container {
+        padding: 1rem;
+      }
+
+      .chat-input-sticky-area {
+        padding: 0.8rem;
+        padding-bottom: calc(0.8rem + env(safe-area-inset-bottom));
+      }
+
+      #question {
+        font-size: 0.95rem;
+      }
+
+      .action-btn {
+        width: 2.3rem;
+        height: 2.3rem;
+      }
+    }
+
+    /* -----------------------------------------------------------
+       9. KEYFRAMES
+    ----------------------------------------------------------- */
+    @keyframes metallicShine {
+      0% { transform: translate(-50%, -50%) rotate(0deg); opacity: 0; }
+      10% { opacity: 1; }
+      20% { transform: translate(50%, 50%) rotate(0deg); opacity: 0; }
+      100% { opacity: 0; }
+    }
+
+    @keyframes pulseGreen {
+      0% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.4); }
+      70% { box-shadow: 0 0 0 0.8rem rgba(34, 197, 94, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); }
+    }
+
+    @keyframes pulseYellow {
+      0% { box-shadow: 0 0 0 0 rgba(250, 204, 21, 0.36); }
+      70% { box-shadow: 0 0 0 0.7rem rgba(250, 204, 21, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(250, 204, 21, 0); }
+    }
+
+    @keyframes slideDown {
+      from { transform: translateY(-2rem); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    @keyframes fadeUp {
+      from { transform: translateY(2rem); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    @keyframes messagePopIn {
+      from { transform: scale(0.96) translateY(0.7rem); opacity: 0; }
+      to { transform: scale(1) translateY(0); opacity: 1; }
+    }
+
+    @keyframes typingDot {
+      0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+      30% { transform: translateY(-0.4rem); opacity: 1; }
+    }
+
+    @keyframes slowFloat {
+      0%, 100% { transform: translateY(0) translateX(0); }
+      50% { transform: translateY(-1rem) translateX(0.8rem); }
+    }
   </style>
 </head>
 <body>
@@ -360,28 +821,29 @@
           <p>Asistente del Magisterio Católico</p>
         </div>
       </div>
+
       <div class="header-actions">
-        <div class="status-badge">
+        <div class="status-badge" id="statusBadge">
           <span class="status-dot"></span>
-          Conectado
+          <span id="statusText">Listo</span>
         </div>
       </div>
     </header>
 
     <aside class="app-sidebar">
-      
+
       <section class="side-panel panel-base intro-panel">
         <div class="panel-header">
           <h2 class="panel-title">Guía Doctrinal</h2>
         </div>
-        <p style="margin:0; font-size: 0.95rem; line-height: 1.6; color: var(--text-muted);">
-          Consulta sobre Biblia, Catecismo y Magisterio con rigor y claridad.
+        <p class="intro-text">
+          Consulta sobre Biblia, Catecismo y Magisterio con rigor, claridad y fidelidad a la enseñanza católica.
         </p>
       </section>
 
       <section class="side-panel panel-base">
         <div class="panel-header">
-          <h2 class="panel-title">Extensión de Respuesta</h2>
+          <h2 class="panel-title">Extensión de respuesta</h2>
         </div>
         <div class="mode-selector" id="modeSwitch">
           <div class="mode-option active" data-mode="breve">Breve</div>
@@ -391,16 +853,36 @@
 
       <section class="side-panel panel-base">
         <div class="panel-header">
-          <h2 class="panel-title">Consultas Frecuentes</h2>
+          <h2 class="panel-title">Estilo doctrinal</h2>
+        </div>
+        <div class="mode-selector tone-selector" id="toneSwitch">
+          <div class="tone-option active" data-tone="pastoral">
+            <span>Pastoral</span>
+            <small>claro y cercano</small>
+          </div>
+          <div class="tone-option" data-tone="apologetico">
+            <span>Apologético</span>
+            <small>objeción y respuesta</small>
+          </div>
+          <div class="tone-option" data-tone="academico">
+            <span>Académico</span>
+            <small>más técnico</small>
+          </div>
+        </div>
+      </section>
+
+      <section class="side-panel panel-base">
+        <div class="panel-header">
+          <h2 class="panel-title">Consultas frecuentes</h2>
         </div>
         <div class="quick-actions-grid">
           <button class="quick-action-card quick-btn" data-question="¿La Iglesia Católica adora imágenes?">
             <span class="icon">✝</span>
-            <span class="text">Uso de Imágenes</span>
+            <span class="text">Uso de imágenes</span>
           </button>
           <button class="quick-action-card quick-btn" data-question="¿En qué se basa el dogma mariano Madre de Dios?">
             <span class="icon">⚜</span>
-            <span class="text">Dogma Mariano</span>
+            <span class="text">Dogma mariano</span>
           </button>
           <button class="quick-action-card quick-btn" data-question="¿Por qué la Iglesia rechaza la sola Scriptura?">
             <span class="icon">📖</span>
@@ -413,14 +895,39 @@
         </div>
       </section>
 
+      <section class="side-panel panel-base">
+        <div class="panel-header">
+          <h2 class="panel-title">Categorías</h2>
+        </div>
+        <div class="category-grid">
+          <button class="category-btn category-prompt" data-question="Explícame una duda sobre María y los dogmas marianos.">
+            <span>María y dogmas</span><span>→</span>
+          </button>
+          <button class="category-btn category-prompt" data-question="Explícame una duda sobre Biblia, Tradición y Magisterio.">
+            <span>Biblia y Tradición</span><span>→</span>
+          </button>
+          <button class="category-btn category-prompt" data-question="Explícame una duda sobre los sacramentos de la Iglesia Católica.">
+            <span>Sacramentos</span><span>→</span>
+          </button>
+          <button class="category-btn category-prompt" data-question="Explícame una duda sobre el Papado, la autoridad de la Iglesia y la sucesión apostólica.">
+            <span>Papado e Iglesia</span><span>→</span>
+          </button>
+          <button class="category-btn category-prompt" data-question="Explícame una duda de moral católica según el Catecismo.">
+            <span>Moral católica</span><span>→</span>
+          </button>
+        </div>
+      </section>
+
     </aside>
 
     <main class="app-main panel-base">
-      
+
       <div id="chat" class="chat-container">
         <div class="message-row bot">
-          <div class="message-content">
-            <b>Bienvenido.</b> Estoy a tu disposición para profundizar en la Doctrina Católica. ¿Qué tema deseas consultar hoy?
+          <div class="message-card">
+            <div class="message-content">
+              <b>Bienvenido.</b> Estoy a tu disposición para profundizar en la Doctrina Católica. Podés elegir una consulta frecuente, una categoría o escribir tu propia pregunta.
+            </div>
           </div>
         </div>
       </div>
@@ -428,16 +935,16 @@
       <div class="chat-input-sticky-area">
         <div class="input-wrapper">
           <textarea id="question" placeholder="Escribe tu consulta doctrinal..." rows="1"></textarea>
-          
+
           <button class="action-btn btn-clear" id="clearBtn" title="Limpiar chat">
-            ✦
+            ↺
           </button>
-          <button class="action-btn btn-send" id="sendBtn">
+          <button class="action-btn btn-send" id="sendBtn" title="Enviar consulta">
             ▶
           </button>
         </div>
-        <p style="margin: 0.6rem 0 0; text-align: center; font-size: 0.75rem; color: rgba(255,255,255,0.4); padding: 0 0.5rem;">
-          Respuestas basadas en fuentes oficiales. Verifique documentos.
+        <p class="footer-warning">
+          Doctor Fidei ofrece orientación doctrinal basada en fuentes católicas. Para decisiones pastorales o casos particulares, consulte a un sacerdote o autoridad competente.
         </p>
       </div>
 
@@ -451,62 +958,225 @@
     const sendBtn = document.getElementById('sendBtn');
     const clearBtn = document.getElementById('clearBtn');
     const quickButtons = document.querySelectorAll('.quick-btn');
+    const categoryButtons = document.querySelectorAll('.category-prompt');
     const modeOptions = document.querySelectorAll('.mode-option');
+    const toneOptions = document.querySelectorAll('.tone-option');
+    const statusBadge = document.getElementById('statusBadge');
+    const statusText = document.getElementById('statusText');
 
     let responseMode = 'breve';
+    let responseTone = 'pastoral';
+    let conversationMemory = [];
+    let lastBotReply = '';
 
-    // Auto-resizing del textarea fluido
+    function setStatus(state, label) {
+      statusBadge.classList.remove('consulting', 'error');
+
+      if (state === 'consulting') {
+        statusBadge.classList.add('consulting');
+      }
+
+      if (state === 'error') {
+        statusBadge.classList.add('error');
+      }
+
+      statusText.textContent = label;
+    }
+
     function autoResizeTextarea() {
       input.style.height = 'auto';
-      // Crecimiento fluido hasta un máximo (10rem)
       const maxHeightEm = 10 * parseFloat(getComputedStyle(document.documentElement).fontSize);
       const newHeight = Math.min(input.scrollHeight, maxHeightEm);
       input.style.height = newHeight + 'px';
-      
-      // Ajuste de scroll si crece
+
       if (window.innerWidth < 600) {
-          scrollToBottom();
+        scrollToBottom();
       }
     }
 
-    // Scroll al final fluida (Adaptada a scroll del body)
     function scrollToBottom() {
-        // En este layout, el scroll principal es el del body, no el del chat-container
-        window.scrollTo(0, document.body.scrollHeight);
+      if (window.innerWidth >= 1200) {
+        chat.scrollTo({ top: chat.scrollHeight, behavior: 'smooth' });
+      } else {
+        window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+      }
     }
 
-    // Formateo mensajes mantenido
     function escapeHtml(text) {
-      const div = document.createElement('div'); div.textContent = text;
+      const div = document.createElement('div');
+      div.textContent = text;
       return div.innerHTML;
     }
 
+    function formatInlineMarkdown(text) {
+      return text
+        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+        .replace(/\*(.*?)\*/g, '<em>$1</em>');
+    }
+
+    function isLikelySourceLine(line) {
+      const lower = line.toLowerCase();
+      return (
+        lower.includes('catecismo') ||
+        lower.includes('cic') ||
+        lower.includes('canon') ||
+        lower.includes('concilio') ||
+        lower.includes('vaticano') ||
+        lower.includes('encíclica') ||
+        lower.includes('constitución') ||
+        lower.includes('decreto') ||
+        lower.includes('declaración') ||
+        lower.includes('juan ') ||
+        lower.includes('mateo ') ||
+        lower.includes('lucas ') ||
+        lower.includes('marcos ') ||
+        lower.includes('romanos ') ||
+        lower.includes('corintios ') ||
+        lower.includes('timoteo ') ||
+        lower.includes('pedro ')
+      );
+    }
+
     function formatMessage(text) {
-      let html = escapeHtml(text);
-      html = html.replace(/\n\n/g, '<br><br>');
-      html = html.replace(/\n/g, '<br>');
-      html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-      html = html.replace(/^&gt;\s?(.*)$/gm, '<blockquote>$1</blockquote>');
+      const escaped = escapeHtml(text || '');
+      const lines = escaped.split('\n');
+      let html = '';
+      let inList = false;
+      let pendingSourceLines = [];
+
+      function flushList() {
+        if (inList) {
+          html += '</ul>';
+          inList = false;
+        }
+      }
+
+      function flushSources() {
+        if (pendingSourceLines.length) {
+          html += '<div class="source-box"><span class="source-box-title">Fuentes y referencias detectadas</span>';
+          html += pendingSourceLines.map(line => `<div>${formatInlineMarkdown(line)}</div>`).join('');
+          html += '</div>';
+          pendingSourceLines = [];
+        }
+      }
+
+      lines.forEach((rawLine) => {
+        const line = rawLine.trim();
+
+        if (!line) {
+          flushList();
+          flushSources();
+          html += '<br>';
+          return;
+        }
+
+        if (/^#{1,3}\s+/.test(line)) {
+          flushList();
+          flushSources();
+          html += `<h3>${formatInlineMarkdown(line.replace(/^#{1,3}\s+/, ''))}</h3>`;
+          return;
+        }
+
+        if (/^\d+\.\s+/.test(line)) {
+          flushList();
+          flushSources();
+          html += `<h3>${formatInlineMarkdown(line.replace(/^\d+\.\s+/, ''))}</h3>`;
+          return;
+        }
+
+        if (/^[-•]\s+/.test(line)) {
+          flushSources();
+          if (!inList) {
+            html += '<ul>';
+            inList = true;
+          }
+          html += `<li>${formatInlineMarkdown(line.replace(/^[-•]\s+/, ''))}</li>`;
+          return;
+        }
+
+        if (/^&gt;\s?/.test(line)) {
+          flushList();
+          flushSources();
+          html += `<blockquote>${formatInlineMarkdown(line.replace(/^&gt;\s?/, ''))}</blockquote>`;
+          return;
+        }
+
+        if (isLikelySourceLine(line) && line.length < 180) {
+          flushList();
+          pendingSourceLines.push(line);
+          return;
+        }
+
+        flushList();
+        flushSources();
+        html += `<p style="margin:0 0 .75rem;">${formatInlineMarkdown(line)}</p>`;
+      });
+
+      flushList();
+      flushSources();
+
       return html;
     }
 
-    // Añadir mensaje con animación fluida
-    function appendMessage(role, content, options = {}) {
-      const row = document.createElement('div'); row.className = `message-row ${role}`;
-      const contentDiv = document.createElement('div'); contentDiv.className = 'message-content';
-      
-      if (options.raw) { contentDiv.innerHTML = content; }
-      else { contentDiv.innerHTML = formatMessage(content); }
+    function createMessageCard(role, content, options = {}) {
+      const row = document.createElement('div');
+      row.className = `message-row ${role}`;
 
-      row.appendChild(contentDiv);
+      const card = document.createElement('div');
+      card.className = 'message-card';
+
+      const contentDiv = document.createElement('div');
+      contentDiv.className = 'message-content';
+
+      if (options.raw) {
+        contentDiv.innerHTML = content;
+      } else {
+        contentDiv.innerHTML = formatMessage(content);
+      }
+
+      card.appendChild(contentDiv);
+
+      if (role === 'bot' && !options.raw && options.actions !== false) {
+        const actions = document.createElement('div');
+        actions.className = 'message-actions';
+
+        const copyBtn = document.createElement('button');
+        copyBtn.className = 'mini-action';
+        copyBtn.textContent = 'Copiar respuesta';
+        copyBtn.addEventListener('click', async () => {
+          try {
+            await navigator.clipboard.writeText(content);
+            copyBtn.textContent = 'Copiado ✓';
+            setTimeout(() => copyBtn.textContent = 'Copiar respuesta', 1400);
+          } catch {
+            copyBtn.textContent = 'No se pudo copiar';
+            setTimeout(() => copyBtn.textContent = 'Copiar respuesta', 1400);
+          }
+        });
+
+        const debateBtn = document.createElement('button');
+        debateBtn.className = 'mini-action';
+        debateBtn.textContent = 'Versión para debate';
+        debateBtn.addEventListener('click', () => {
+          const debatePrompt = `Convierte esta respuesta en un argumento breve, respetuoso y útil para debate apologético. Mantén fidelidad doctrinal y conserva las fuentes principales.\n\nRespuesta a convertir:\n${content}`;
+          sendMessage(debatePrompt, { hiddenUserPrompt: 'Convertir la última respuesta en versión breve para debate.' });
+        });
+
+        actions.appendChild(copyBtn);
+        actions.appendChild(debateBtn);
+        card.appendChild(actions);
+      }
+
+      row.appendChild(card);
       chat.appendChild(row);
-      
-      // Delay para asegurar renderizado antes del scroll
       setTimeout(scrollToBottom, 50);
       return row;
     }
 
-    // typing avanzado fluida
+    function appendMessage(role, content, options = {}) {
+      return createMessageCard(role, content, options);
+    }
+
     function appendTyping() {
       const typingHtml = `
         <div class="typing-indicator">
@@ -514,45 +1184,90 @@
           Consultando Magisterio...
         </div>
       `;
-      return appendMessage('bot', typingHtml, { raw: true });
+      return appendMessage('bot', typingHtml, { raw: true, actions: false });
     }
 
-    // LÓGICA DE BACKEND RESPETADA
-    async function sendMessage(prefilledText = '') {
+    function buildContextualPrompt(baseQuestion) {
+      const recentContext = conversationMemory
+        .slice(-6)
+        .map(item => `${item.role === 'user' ? 'Usuario' : 'Doctor Fidei'}: ${item.content}`)
+        .join('\n\n');
+
+      return `
+Modo de extensión solicitado: ${responseMode}.
+Estilo doctrinal solicitado: ${responseTone}.
+
+Instrucción de formato:
+Organiza la respuesta, cuando corresponda, en secciones claras:
+- Clasificación doctrinal
+- Respuesta breve
+- Fundamento bíblico
+- Catecismo / Magisterio
+- Errores comunes
+- Matices doctrinales
+- Conclusión pastoral
+
+Si el estilo es "pastoral", responde con cercanía, claridad y prudencia.
+Si el estilo es "apologetico", identifica la objeción, responde con firmeza respetuosa y evita agresividad.
+Si el estilo es "academico", usa lenguaje más técnico, documental y preciso.
+
+Contexto reciente de la conversación:
+${recentContext || 'Sin contexto previo.'}
+
+Pregunta actual:
+${baseQuestion}
+      `.trim();
+    }
+
+    async function sendMessage(prefilledText = '', options = {}) {
       const baseQuestion = prefilledText || input.value.trim();
+      const visibleQuestion = options.hiddenUserPrompt || baseQuestion;
+
       if (!baseQuestion) return;
 
-      const finalQuestion = `Modo de respuesta solicitado: ${responseMode}.\n\nPregunta: ${baseQuestion}`;
+      appendMessage('user', visibleQuestion, { actions: false });
 
-      appendMessage('user', baseQuestion);
+      if (!options.hiddenUserPrompt) {
+        conversationMemory.push({ role: 'user', content: baseQuestion });
+      } else {
+        conversationMemory.push({ role: 'user', content: visibleQuestion });
+      }
+
       input.value = '';
-      autoResizeTextarea(); // Reset height
-      input.blur(); // Ocultar teclado en móvil
+      autoResizeTextarea();
+      input.blur();
 
       sendBtn.disabled = true;
       sendBtn.innerHTML = '...';
+      setStatus('consulting', 'Consultando');
 
       const typingRow = appendTyping();
 
       try {
-        // --- CONEXIÓN AL BACKEND (Mantenida) ---
         const response = await fetch('/chat', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ message: finalQuestion })
+          body: JSON.stringify({ message: buildContextualPrompt(baseQuestion) })
         });
 
         const data = await response.json();
-        typingRow.remove(); // Quitar typing
+        typingRow.remove();
 
         if (!response.ok) {
-          appendMessage('bot', `⚠️ <b>Error:</b> ${data.error || 'No se pudo procesar la consulta.'}`);
+          const errorText = `⚠️ Error: ${data.error || 'No se pudo procesar la consulta.'}`;
+          appendMessage('bot', errorText, { actions: false });
+          setStatus('error', 'Error');
         } else {
-          appendMessage('bot', data.reply || 'No se recibió una respuesta válida.');
+          const reply = data.reply || 'No se recibió una respuesta válida.';
+          lastBotReply = reply;
+          conversationMemory.push({ role: 'assistant', content: reply });
+          appendMessage('bot', reply);
+          setStatus('ready', 'Listo');
         }
       } catch (error) {
         typingRow.remove();
-        appendMessage('bot', '❌ <b>Error de conexión:</b> No se pudo contactar con el servidor.');
+        appendMessage('bot', '❌ Error de conexión: No se pudo contactar con el servidor.', { actions: false });
+        setStatus('error', 'Sin conexión');
       } finally {
         sendBtn.disabled = false;
         sendBtn.innerHTML = '▶';
@@ -560,24 +1275,28 @@
       }
     }
 
-    // EVENTOS MANTENIDOS
     sendBtn.addEventListener('click', () => sendMessage());
 
     clearBtn.addEventListener('click', () => {
+      conversationMemory = [];
+      lastBotReply = '';
       chat.innerHTML = `
         <div class="message-row bot">
-          <div class="message-content">
-            <b>Chat reiniciado.</b> Estoy a tu disposición para profundizar en la Doctrina Católica. ¿Qué tema deseas consultar hoy?
+          <div class="message-card">
+            <div class="message-content">
+              <b>Chat reiniciado.</b> Estoy a tu disposición para profundizar en la Doctrina Católica. ¿Qué tema deseas consultar hoy?
+            </div>
           </div>
         </div>
       `;
       input.value = '';
       autoResizeTextarea();
+      setStatus('ready', 'Listo');
       scrollToBottom();
     });
 
     input.addEventListener('input', autoResizeTextarea);
-    
+
     input.addEventListener('keydown', (e) => {
       if (e.key === 'Enter' && !e.shiftKey) {
         e.preventDefault();
@@ -593,6 +1312,14 @@
       });
     });
 
+    categoryButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        input.value = btn.dataset.question || '';
+        autoResizeTextarea();
+        input.focus();
+      });
+    });
+
     modeOptions.forEach(option => {
       option.addEventListener('click', () => {
         modeOptions.forEach(o => o.classList.remove('active'));
@@ -601,15 +1328,22 @@
       });
     });
 
-    // Inicialización fluida
+    toneOptions.forEach(option => {
+      option.addEventListener('click', () => {
+        toneOptions.forEach(o => o.classList.remove('active'));
+        option.classList.add('active');
+        responseTone = option.dataset.tone || 'pastoral';
+      });
+    });
+
     autoResizeTextarea();
-    // Corrección para altura en móviles (vvh issue)
+
     function setFullHeight() {
-        document.documentElement.style.setProperty('--vh', `${window.innerHeight * 0.01}px`);
+      document.documentElement.style.setProperty('--vh', `${window.innerHeight * 0.01}px`);
     }
+
     window.addEventListener('resize', setFullHeight);
     setFullHeight();
-
   </script>
 </body>
 </html>
