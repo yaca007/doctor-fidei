@@ -1,13 +1,12 @@
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
-import OpenAI from "openai"; // Volvemos a OpenAI para el chat
-import { GoogleGenerativeAI } from "@google/generative-ai"; // Gemini para el PDF
-//import puppeteer from "puppeteer";
-import path from "path";
-import { fileURLToPath } from "url";
+import OpenAI from "openai";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 import chromium from "@sparticuz/chromium";
 import puppeteer from "puppeteer-core";
+import path from "path";
+import { fileURLToPath } from "url";
 
 dotenv.config();
 
@@ -118,12 +117,12 @@ Para dirigirte al usuario, dile siempre Mi REy, para darle ese toque de cercaní
 puedes utilizar frases que cumplan ese fin.
 `;
 
-// ================= CHAT (OPENAI ORIGINAL) =================
+// ================= CHAT (OPENAI) =================
 app.post("/chat", async (req, res) => {
   try {
     const { message } = req.body;
     const response = await openai.chat.completions.create({
-      model: "gpt-4-turbo", // Corregido de "gpt-5"
+      model: "gpt-4-turbo", 
       messages: [
         { role: "system", content: SYSTEM_PROMPT },
         { role: "user", content: message }
@@ -136,31 +135,47 @@ app.post("/chat", async (req, res) => {
   }
 });
 
-// ================= PDF (GEMINI + PUPPETEER) =================
+// ================= PDF (GEMINI + PUPPETEER CORE) =================
 app.post("/presentation", async (req, res) => {
+  let browser = null;
   try {
     const { title, slideCount, sourceAnswer } = req.body;
 
-    const model = genAI.getGenerativeModel({
+    // 1. Gemini estructura el contenido
+    const model = genAI.getGenerativeModel({ 
       model: "gemini-1.5-flash",
       generationConfig: { responseMimeType: "application/json" }
     });
 
-    const prompt = `Actúa como diseñador editorial. Organiza este contenido en ${slideCount} páginas para un PDF. 
-    Responde en JSON: { "pages": [{ "header": "...", "body": "..." }] }. 
+    const prompt = `Actúa como diseñador editorial católico. Organiza el siguiente contenido en exactamente ${slideCount} secciones para un documento PDF.
+    Responde ÚNICAMENTE en JSON: { "pages": [{ "header": "Título", "body": "Contenido" }] }. 
     Contenido: ${sourceAnswer}`;
 
     const aiResult = await model.generateContent(prompt);
     const data = JSON.parse(aiResult.response.text());
 
+    // 2. Lanzar Puppeteer optimizado para Vercel
+    browser = await puppeteer.launch({
+      args: chromium.args,
+      defaultViewport: chromium.defaultViewport,
+      executablePath: await chromium.executablePath(),
+      headless: chromium.headless,
+      ignoreHTTPSErrors: true,
+    });
+
+    const page = await browser.newPage();
+    
+    // Plantilla HTML con estilo Doctor Fidei
     const htmlContent = `
     <html>
       <head>
         <style>
           @page { size: A4; margin: 0; }
-          body { background: #03050a; color: #f5f7fb; font-family: sans-serif; }
-          .page { width: 210mm; height: 297mm; padding: 25mm; border: 12px solid #d4af37; page-break-after: always; box-sizing: border-box; }
-          h1 { color: #d4af37; text-align: center; border-bottom: 1px solid #d4af37; }
+          body { background: #03050a; color: #f5f7fb; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; }
+          .page { width: 210mm; height: 297mm; padding: 25mm; border: 15px solid #d4af37; page-break-after: always; box-sizing: border-box; position: relative; }
+          h1 { color: #d4af37; text-align: center; font-size: 2.2rem; border-bottom: 2px solid #d4af37; padding-bottom: 10px; }
+          .content { font-size: 1.1rem; line-height: 1.6; text-align: justify; margin-top: 20px; }
+          .footer { position: absolute; bottom: 15mm; width: calc(100% - 50mm); text-align: center; color: #98a4c7; border-top: 1px solid rgba(212,175,55,0.2); padding-top: 5px; }
         </style>
       </head>
       <body>
@@ -168,33 +183,28 @@ app.post("/presentation", async (req, res) => {
           <div class="page">
             <h1>${p.header}</h1>
             <div class="content">${p.body.replace(/\n/g, '<br>')}</div>
+            <div class="footer">Doctor Fidei — ${title}</div>
           </div>
         `).join('')}
       </body>
     </html>`;
 
-    //const browser = await puppeteer.launch({ headless: "new", args: ['--no-sandbox'] });
-    //const page = await browser.newPage();
-
-    const browser = await puppeteer.launch({
-      args: chromium.args,
-      defaultViewport: chromium.defaultViewport,
-      executablePath: await chromium.executablePath(), // Esto busca el binario ligero
-      headless: chromium.headless,
-      ignoreHTTPSErrors: true,
-    });
-
-    const page = await browser.newPage();
-
-    await page.setContent(htmlContent);
+    await page.setContent(htmlContent, { waitUntil: 'networkidle0' });
     const pdfBuffer = await page.pdf({ format: 'A4', printBackground: true });
-    await browser.close();
 
+    await browser.close();
     res.contentType("application/pdf");
     res.send(pdfBuffer);
+
   } catch (error) {
-    res.status(500).send("Error generando PDF");
+    console.error("Error detallado en PDF:", error);
+    if (browser) await browser.close();
+    res.status(500).json({ error: error.message });
   }
 });
 
-app.listen(port, () => console.log(`Doctor Fidei Híbrido en puerto ${port}`));
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "index.html"));
+});
+
+app.listen(port, () => console.log(`Servidor Híbrido corriendo en puerto ${port}`));
