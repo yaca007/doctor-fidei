@@ -1056,11 +1056,508 @@
     <div class="toast" id="toast"></div>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            const chat = document.getElementById('chat'), input = document.getElementById('question'), sendBtn = document.getElementById('sendBtn'), clearBtn = document.getElementById('clearBtn'), quickButtons = document.querySelectorAll('.quickBtn'), categoryButtons = document.querySelectorAll('.catBtn'), modeOptions = document.querySelectorAll('.opt'), toneOptions = document.querySelectorAll('.toneOpt'), statusBadge = document.getElementById('statusBadge'), statusText = document.getElementById('statusText'), memoryToggle = document.getElementById('memoryToggle'), clearMemoryBtn = document.getElementById('clearMemoryBtn'), rankingList = document.getElementById('rankingList'), presentationModal = document.getElementById('presentationModal'), closePresentationModal = document.getElementById('closePresentationModal'), generateDeckBtn = document.getElementById('generateDeckBtn'), copyDeckPromptBtn = document.getElementById('copyDeckPromptBtn'), toast = document.getElementById('toast'); const K = { memoryEnabled: 'doctorFidei.memoryEnabled', conversation: 'doctorFidei.conversationMemory', ranking: 'doctorFidei.questionRanking', lastAnswer: 'doctorFidei.lastAnswer', lastQuestion: 'doctorFidei.lastQuestion' }; let responseMode = 'breve', responseTone = 'pastoral', memoryEnabled = localStorage.getItem(K.memoryEnabled) === null ? true : localStorage.getItem(K.memoryEnabled) === 'true', conversationMemory = safeJson(K.conversation, []), questionRanking = safeJson(K.ranking, []), lastBotReply = localStorage.getItem(K.lastAnswer) || '', lastQuestion = localStorage.getItem(K.lastQuestion) || ''; function safeJson(k, d) { try { return JSON.parse(localStorage.getItem(k) || JSON.stringify(d)) } catch { return d } } function toastMsg(m, d = 3200) { toast.textContent = m; toast.classList.add('show'); clearTimeout(toastMsg.t); toastMsg.t = setTimeout(() => toast.classList.remove('show'), d) } function saveMem() { if (!memoryEnabled) return; conversationMemory = conversationMemory.slice(-12); localStorage.setItem(K.conversation, JSON.stringify(conversationMemory)) } function esc(t) { const div = document.createElement('div'); div.textContent = t || ''; return div.innerHTML } function inline(t) { return t.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\*(.*?)\*/g, '<em>$1</em>') } function isSource(line) { const l = line.toLowerCase(); return ['catecismo', 'cic', 'canon', 'concilio', 'vaticano', 'encíclica', 'constitución', 'decreto', 'declaración', 'exhortación', 'carta apostólica', 'juan ', 'mateo ', 'lucas ', 'marcos ', 'romanos ', 'corintios ', 'timoteo ', 'pedro '].some(x => l.includes(x)) } function fmt(text) { const lines = esc(text || '').split('\n'); let html = '', inList = false, sources = []; const fl = () => { if (inList) { html += '</ul>'; inList = false } }, fs = () => { if (sources.length) { html += '<div class="sourceBox"><span class="sourceTitle">Fuentes y referencias detectadas</span>' + sources.map(x => `<div>${inline(x)}</div>`).join('') + '</div>'; sources = [] } }; for (const raw of lines) { const line = raw.trim(); if (!line) { fl(); fs(); html += '<br>'; continue } if (/^#{1,3}\s+/.test(line)) { fl(); fs(); html += `<h3>${inline(line.replace(/^#{1,3}\s+/, ''))}</h3>`; continue } if (/^\d+\.\s+/.test(line)) { fl(); fs(); html += `<h3>${inline(line.replace(/^\d+\.\s+/, ''))}</h3>`; continue } if (/^[-•]\s+/.test(line)) { fs(); if (!inList) { html += '<ul>'; inList = true } html += `<li>${inline(line.replace(/^[-•]\s+/, ''))}</li>`; continue } if (/^&gt;\s?/.test(line)) { fl(); fs(); html += `<blockquote>${inline(line.replace(/^&gt;\s?/, ''))}</blockquote>`; continue } if (isSource(line) && line.length < 190) { fl(); sources.push(line); continue } fl(); fs(); html += `<p style="margin:0 0 .75rem;">${inline(line)}</p>` } fl(); fs(); return html } function status(s, l) { statusBadge.classList.remove('consulting', 'error'); if (s === 'consulting') statusBadge.classList.add('consulting'); if (s === 'error') statusBadge.classList.add('error'); statusText.textContent = l } function resize() { input.style.height = 'auto'; const mx = 10 * parseFloat(getComputedStyle(document.documentElement).fontSize); input.style.height = Math.min(input.scrollHeight, mx) + 'px' } function scrollBottom() { if (innerWidth >= 1200) chat.scrollTo({ top: chat.scrollHeight, behavior: 'smooth' }); else scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' }) } function addMsg(role, content, opt = {}) { const row = document.createElement('div'); row.className = `row ${role}`; const card = document.createElement('div'); card.className = 'card'; const c = document.createElement('div'); c.className = 'content'; c.innerHTML = opt.raw ? content : fmt(content); card.appendChild(c); if (role === 'bot' && !opt.raw && opt.actions !== false) { const acts = document.createElement('div'); acts.className = 'actions'; const cp = btn('Copiar respuesta', async () => { try { await navigator.clipboard.writeText(content); cp.textContent = 'Copiado ✓'; setTimeout(() => cp.textContent = 'Copiar respuesta', 1400) } catch { cp.textContent = 'No se pudo copiar'; setTimeout(() => cp.textContent = 'Copiar respuesta', 1400) } }); const db = btn('Versión para debate', () => sendMessage(`Convierte esta respuesta en un argumento breve, respetuoso y útil para debate apologético. Mantén fidelidad doctrinal y conserva las fuentes principales.\n\nRespuesta a convertir:\n${content}`, { hiddenUserPrompt: 'Convertir la última respuesta en versión breve para debate.' })); const dk = btn('Generar presentación', () => { lastBotReply = content; localStorage.setItem(K.lastAnswer, content); openPresentationModal() }); acts.append(cp, db, dk); card.appendChild(acts) } row.appendChild(card); chat.appendChild(row); setTimeout(scrollBottom, 50); return row } function btn(t, fn) { const b = document.createElement('button'); b.className = 'mini'; b.textContent = t; b.addEventListener('click', fn); return b } function typing() { return addMsg('bot', '<div class="typing"><div class="dots"><span></span><span></span><span></span></div>Consultando Magisterio...</div>', { raw: true, actions: false }) } function prompt(q) { const ctx = memoryEnabled ? conversationMemory.slice(-8).map(i => `${i.role === 'user' ? 'Usuario' : 'Doctor Fidei'}: ${i.content}`).join('\n\n') : 'Memoria desactivada. Responder solo la pregunta actual.'; return `Modo de extensión solicitado: ${responseMode}.\nEstilo doctrinal solicitado: ${responseTone}.\n\nInstrucción de formato:\nOrganiza la respuesta, cuando corresponda, en secciones claras:\n- Clasificación doctrinal\n- Respuesta breve\n- Fundamento bíblico\n- Catecismo / Magisterio\n- Errores comunes\n- Matices doctrinales\n- Conclusión pastoral\n\nContexto reciente de la conversación:\n${ctx || 'Sin contexto previo.'}\n\nPregunta actual:\n${q}` }
-            function norm(q) { return q.toLowerCase().replace(/[¿?¡!.,;:]/g, '').replace(/\s+/g, ' ').trim() } function reg(q) { const n = norm(q); if (!n || n.length < 8) return; let e = questionRanking.find(i => i.normalized === n); if (e) { e.count++; e.lastAskedAt = Date.now() } else questionRanking.push({ question: q, normalized: n, count: 1, lastAskedAt: Date.now() }); questionRanking.sort((a, b) => b.count - a.count || b.lastAskedAt - a.lastAskedAt); questionRanking = questionRanking.slice(0, 30); localStorage.setItem(K.ranking, JSON.stringify(questionRanking)); renderRanking() } function renderRanking() { const top = questionRanking.slice(0, 5); if (!top.length) { rankingList.innerHTML = '<div class="empty">Todavía no hay preguntas frecuentes. El ranking se irá formando con el uso.</div>'; return } rankingList.innerHTML = ''; top.forEach((it, i) => { const r = document.createElement('button'); r.className = 'rankItem'; r.innerHTML = `<span class="rankNum">${i + 1}</span><span class="rankQ">${esc(it.question)}</span><span class="rankC">${it.count}×</span>`; r.onclick = () => { input.value = it.question; resize(); input.focus() }; rankingList.appendChild(r) }) }
-            async function sendMessage(prefilled = '', options = {}) { const q = prefilled || input.value.trim(), visible = options.hiddenUserPrompt || q; if (!q) return; addMsg('user', visible, { actions: false }); if (!options.hiddenUserPrompt) { reg(q); lastQuestion = q; localStorage.setItem(K.lastQuestion, q) } if (memoryEnabled) { conversationMemory.push({ role: 'user', content: options.hiddenUserPrompt ? visible : q }); saveMem() } input.value = ''; resize(); input.blur(); sendBtn.disabled = true; sendBtn.innerHTML = '...'; status('consulting', 'Consultando'); const t = typing(); try { const r = await fetch('/chat', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ message: prompt(q) }) }); const data = await r.json(); t.remove(); if (!r.ok) { addMsg('bot', `⚠️ Error: ${data.error || 'No se pudo procesar la consulta.'}`, { actions: false }); status('error', 'Error') } else { const reply = data.reply || 'No se recibió una respuesta válida.'; lastBotReply = reply; localStorage.setItem(K.lastAnswer, reply); if (memoryEnabled) { conversationMemory.push({ role: 'assistant', content: reply }); saveMem() } addMsg('bot', reply); status('ready', 'Listo') } } catch (e) { t.remove(); addMsg('bot', '❌ Error de conexión: No se pudo contactar con el servidor.', { actions: false }); status('error', 'Sin conexión') } finally { sendBtn.disabled = false; sendBtn.innerHTML = '▶'; if (innerWidth > 1024) input.focus() } }
-            function openPresentationModal() { if (!lastBotReply) { toastMsg('Primero generá una respuesta doctrinal para convertirla en presentación.'); return } const ti = document.getElementById('deckTitle'); const topic = lastQuestion ? lastQuestion.replace(/[¿?]/g, '').trim() : 'Capacitación doctrinal'; ti.value = topic.length > 70 ? topic.slice(0, 70) + '…' : topic; presentationModal.classList.add('open'); presentationModal.setAttribute('aria-hidden', 'false') } function closePresentation() { presentationModal.classList.remove('open'); presentationModal.setAttribute('aria-hidden', 'true') } function payload() { return { title: document.getElementById('deckTitle').value.trim() || 'Capacitación doctrinal - Doctor Fidei', slideCount: Number(document.getElementById('slideCount').value || 8), audienceLevel: document.getElementById('audienceLevel').value, deckTone: document.getElementById('deckTone').value, deckStyle: document.getElementById('deckStyle').value, speakerNotes: document.getElementById('speakerNotes').value.trim(), sourceQuestion: lastQuestion, sourceAnswer: lastBotReply, visualInstruction: 'Crear slides con estética victoriana-renacentista: marco ornamental, serif elegante, dorado sobrio, textura de pergamino oscuro, diagramas catequéticos y gráficos tipo grabado antiguo cuando corresponda.' } } function deckPrompt(p) { return `Genera una presentación de capacitación en PowerPoint basada en la siguiente respuesta doctrinal.\n\nTítulo: ${p.title}\nCantidad de slides: ${p.slideCount}\nNivel de audiencia: ${p.audienceLevel}\nEnfoque: ${p.deckTone}\nEstilo visual: ${p.deckStyle}\nInstrucción visual: ${p.visualInstruction}\nNotas del presentador: ${p.speakerNotes || 'Sin notas adicionales.'}\n\nPregunta original:\n${p.sourceQuestion || 'No especificada.'}\n\nRespuesta doctrinal base:\n${p.sourceAnswer}\n\nEstructura sugerida:\n1. Portada\n2. La duda doctrinal\n3. Clasificación doctrinal\n4. Fundamento bíblico\n5. Catecismo y Magisterio\n6. Errores comunes\n7. Aplicación pastoral/apologética\n8. Cierre con síntesis y fuentes` } async function generatePresentation() { const p = payload(); if (!p.sourceAnswer) { toastMsg('No hay una respuesta base para generar la presentación.'); return } generateDeckBtn.disabled = true; generateDeckBtn.textContent = 'Generando...'; status('consulting', 'Generando deck'); try { const r = await fetch('/presentation', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(p) }); if (!r.ok) throw new Error('Endpoint /presentation no disponible todavía.'); const blob = await r.blob(); if (!blob || blob.size === 0) throw new Error('Archivo vacío'); const url = URL.createObjectURL(blob); const a = document.createElement('a'); const safe = (p.title.toLowerCase().replace(/[^a-z0-9áéíóúñü]+/gi, '-').replace(/^-|-$/g, '') || 'doctor-fidei-presentacion'); a.href = url; a.download = `${safe}.pptx`; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url); toastMsg('Presentación generada correctamente.'); closePresentation(); status('ready', 'Listo') } catch (e) { console.error('Error al generar presentación:', e); try { await navigator.clipboard.writeText(deckPrompt(p)); toastMsg('El backend /presentation aún no está listo o falló. Copié el prompt del deck al portapapeles.', 5200) } catch { toastMsg('El backend /presentation aún no está listo o falló. Copiá manualmente el prompt.', 5200) } status('error', 'Backend pendiente') } finally { generateDeckBtn.disabled = false; generateDeckBtn.textContent = 'Generar presentación' } } async function copyDeckPrompt() { try { await navigator.clipboard.writeText(deckPrompt(payload())); toastMsg('Prompt de presentación copiado.') } catch { toastMsg('No se pudo copiar el prompt.') } }
-            sendBtn.onclick = () => sendMessage(); clearBtn.onclick = () => { conversationMemory = []; if (memoryEnabled) localStorage.removeItem(K.conversation); chat.innerHTML = '<div class="row bot"><div class="card"><div class="content"><b>Chat reiniciado.</b> Estoy a tu disposición para profundizar en la Doctrina Católica. ¿Qué tema deseas consultar hoy?</div></div></div>'; input.value = ''; resize(); status('ready', 'Listo'); scrollBottom() }; memoryToggle.onclick = () => { memoryEnabled = !memoryEnabled; localStorage.setItem(K.memoryEnabled, String(memoryEnabled)); syncMemory(); if (!memoryEnabled) { conversationMemory = []; localStorage.removeItem(K.conversation); toastMsg('Memoria local desactivada y limpiada.') } else toastMsg('Memoria local activada.') }; function syncMemory() { memoryToggle.classList.toggle('active', memoryEnabled); memoryToggle.setAttribute('aria-pressed', String(memoryEnabled)) } clearMemoryBtn.onclick = () => { conversationMemory = []; localStorage.removeItem(K.conversation); localStorage.removeItem(K.lastAnswer); localStorage.removeItem(K.lastQuestion); lastBotReply = ''; lastQuestion = ''; toastMsg('Memoria local borrada.') }; input.addEventListener('input', resize); input.addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); if (!sendBtn.disabled) sendMessage() } }); quickButtons.forEach(b => b.onclick = () => sendMessage(b.dataset.question || '')); categoryButtons.forEach(b => b.onclick = () => { input.value = b.dataset.question || ''; resize(); input.focus() }); modeOptions.forEach(o => o.onclick = () => { modeOptions.forEach(x => x.classList.remove('active')); o.classList.add('active'); responseMode = o.dataset.mode || 'breve' }); toneOptions.forEach(o => o.onclick = () => { toneOptions.forEach(x => x.classList.remove('active')); o.classList.add('active'); responseTone = o.dataset.tone || 'pastoral' }); closePresentationModal.onclick = closePresentation; presentationModal.onclick = e => { if (e.target === presentationModal) closePresentation() }; generateDeckBtn.onclick = generatePresentation; copyDeckPromptBtn.onclick = copyDeckPrompt; document.addEventListener('keydown', e => { if (e.key === 'Escape' && presentationModal.classList.contains('open')) closePresentation() }); resize(); syncMemory(); renderRanking(); window.openPresentationModal = openPresentationModal; window.generatePresentation = generatePresentation; window.copyDeckPrompt = copyDeckPrompt;
+            const chat = document.getElementById('chat'),
+                input = document.getElementById('question'),
+                sendBtn = document.getElementById('sendBtn'),
+                clearBtn = document.getElementById('clearBtn'),
+                quickButtons = document.querySelectorAll('.quickBtn'),
+                categoryButtons = document.querySelectorAll('.catBtn'),
+                modeOptions = document.querySelectorAll('.opt'),
+                toneOptions = document.querySelectorAll('.toneOpt'),
+                statusBadge = document.getElementById('statusBadge'),
+                statusText = document.getElementById('statusText'),
+                memoryToggle = document.getElementById('memoryToggle'),
+                clearMemoryBtn = document.getElementById('clearMemoryBtn'),
+                rankingList = document.getElementById('rankingList'),
+                presentationModal = document.getElementById('presentationModal'),
+                closePresentationModal = document.getElementById('closePresentationModal'),
+                generateDeckBtn = document.getElementById('generateDeckBtn'),
+                copyDeckPromptBtn = document.getElementById('copyDeckPromptBtn'),
+                toast = document.getElementById('toast');
+            const K = {
+                memoryEnabled: 'doctorFidei.memoryEnabled',
+                conversation: 'doctorFidei.conversationMemory',
+                ranking: 'doctorFidei.questionRanking',
+                lastAnswer: 'doctorFidei.lastAnswer',
+                lastQuestion: 'doctorFidei.lastQuestion'
+            };
+            let responseMode = 'breve',
+                responseTone = 'pastoral',
+                memoryEnabled = localStorage.getItem(K.memoryEnabled) === null ? true : localStorage.getItem(K.memoryEnabled) === 'true',
+                conversationMemory = safeJson(K.conversation, []),
+                questionRanking = safeJson(K.ranking, []),
+                lastBotReply = localStorage.getItem(K.lastAnswer) || '',
+                lastQuestion = localStorage.getItem(K.lastQuestion) || '';
+
+            function safeJson(k, d) {
+                try {
+                    return JSON.parse(localStorage.getItem(k) || JSON.stringify(d))
+                } catch {
+                    return d
+                }
+            }
+
+            function toastMsg(m, d = 3200) {
+                toast.textContent = m;
+                toast.classList.add('show');
+                clearTimeout(toastMsg.t);
+                toastMsg.t = setTimeout(() => toast.classList.remove('show'), d)
+            }
+
+            function saveMem() {
+                if (!memoryEnabled) return;
+                conversationMemory = conversationMemory.slice(-12);
+                localStorage.setItem(K.conversation, JSON.stringify(conversationMemory))
+            }
+
+            function esc(t) {
+                const div = document.createElement('div');
+                div.textContent = t || '';
+                return div.innerHTML
+            }
+
+            function inline(t) {
+                return t.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\*(.*?)\*/g, '<em>$1</em>')
+            }
+
+            function isSource(line) {
+                const l = line.toLowerCase();
+                return ['catecismo', 'cic', 'canon', 'concilio', 'vaticano', 'encíclica', 'constitución', 'decreto', 'declaración', 'exhortación', 'carta apostólica', 'juan ', 'mateo ', 'lucas ', 'marcos ', 'romanos ', 'corintios ', 'timoteo ', 'pedro '].some(x => l.includes(x))
+            }
+
+            function fmt(text) {
+                const lines = esc(text || '').split('\n');
+                let html = '',
+                    inList = false,
+                    sources = [];
+                const fl = () => {
+                    if (inList) {
+                        html += '</ul>';
+                        inList = false
+                    }
+                },
+                    fs = () => {
+                        if (sources.length) {
+                            html += '<div class="sourceBox"><span class="sourceTitle">Fuentes y referencias detectadas</span>' + sources.map(x => `<div>${inline(x)}</div>`).join('') + '</div>';
+                            sources = []
+                        }
+                    };
+                for (const raw of lines) {
+                    const line = raw.trim();
+                    if (!line) {
+                        fl();
+                        fs();
+                        html += '<br>';
+                        continue
+                    }
+                    if (/^#{1,3}\s+/.test(line)) {
+                        fl();
+                        fs();
+                        html += `<h3>${inline(line.replace(/^#{1,3}\s+/, ''))}</h3>`;
+                        continue
+                    }
+                    if (/^\d+\.\s+/.test(line)) {
+                        fl();
+                        fs();
+                        html += `<h3>${inline(line.replace(/^\d+\.\s+/, ''))}</h3>`;
+                        continue
+                    }
+                    if (/^[-•]\s+/.test(line)) {
+                        fs();
+                        if (!inList) {
+                            html += '<ul>';
+                            inList = true
+                        }
+                        html += `<li>${inline(line.replace(/^[-•]\s+/, ''))}</li>`;
+                        continue
+                    }
+                    if (/^&gt;\s?/.test(line)) {
+                        fl();
+                        fs();
+                        html += `<blockquote>${inline(line.replace(/^&gt;\s?/, ''))}</blockquote>`;
+                        continue
+                    }
+                    if (isSource(line) && line.length < 190) {
+                        fl();
+                        sources.push(line);
+                        continue
+                    }
+                    fl();
+                    fs();
+                    html += `<p style="margin:0 0 .75rem;">${inline(line)}</p>`
+                }
+                fl();
+                fs();
+                return html
+            }
+
+            function status(s, l) {
+                statusBadge.classList.remove('consulting', 'error');
+                if (s === 'consulting') statusBadge.classList.add('consulting');
+                if (s === 'error') statusBadge.classList.add('error');
+                statusText.textContent = l
+            }
+
+            function resize() {
+                input.style.height = 'auto';
+                const mx = 10 * parseFloat(getComputedStyle(document.documentElement).fontSize);
+                input.style.height = Math.min(input.scrollHeight, mx) + 'px'
+            }
+
+            function scrollBottom() {
+                if (innerWidth >= 1200) chat.scrollTo({
+                    top: chat.scrollHeight,
+                    behavior: 'smooth'
+                });
+                else scrollTo({
+                    top: document.body.scrollHeight,
+                    behavior: 'smooth'
+                })
+            }
+
+            function addMsg(role, content, opt = {}) {
+                const row = document.createElement('div');
+                row.className = `row ${role}`;
+                const card = document.createElement('div');
+                card.className = 'card';
+                const c = document.createElement('div');
+                c.className = 'content';
+                c.innerHTML = opt.raw ? content : fmt(content);
+                card.appendChild(c);
+                if (role === 'bot' && !opt.raw && opt.actions !== false) {
+                    const acts = document.createElement('div');
+                    acts.className = 'actions';
+                    const cp = btn('Copiar respuesta', async () => {
+                        try {
+                            await navigator.clipboard.writeText(content);
+                            cp.textContent = 'Copiado ✓';
+                            setTimeout(() => cp.textContent = 'Copiar respuesta', 1400)
+                        } catch {
+                            cp.textContent = 'No se pudo copiar';
+                            setTimeout(() => cp.textContent = 'Copiar respuesta', 1400)
+                        }
+                    });
+                    const db = btn('Versión para debate', () => sendMessage(`Convierte esta respuesta en un argumento breve, respetuoso y útil para debate apologético. Mantén fidelidad doctrinal y conserva las fuentes principales.\n\nRespuesta a convertir:\n${content}`, {
+                        hiddenUserPrompt: 'Convertir la última respuesta en versión breve para debate.'
+                    }));
+                    const dk = btn('Generar presentación', () => {
+                        lastBotReply = content;
+                        localStorage.setItem(K.lastAnswer, content);
+                        openPresentationModal()
+                    });
+                    acts.append(cp, db, dk);
+                    card.appendChild(acts)
+                }
+                row.appendChild(card);
+                chat.appendChild(row);
+                setTimeout(scrollBottom, 50);
+                return row
+            }
+
+            function btn(t, fn) {
+                const b = document.createElement('button');
+                b.className = 'mini';
+                b.textContent = t;
+                b.addEventListener('click', fn);
+                return b
+            }
+
+            function typing() {
+                return addMsg('bot', '<div class="typing"><div class="dots"><span></span><span></span><span></span></div>Consultando Magisterio...</div>', {
+                    raw: true,
+                    actions: false
+                })
+            }
+
+            function prompt(q) {
+                const ctx = memoryEnabled ? conversationMemory.slice(-8).map(i => `${i.role === 'user' ? 'Usuario' : 'Doctor Fidei'}: ${i.content}`).join('\n\n') : 'Memoria desactivada. Responder solo la pregunta actual.';
+                return `Modo de extensión solicitado: ${responseMode}.\nEstilo doctrinal solicitado: ${responseTone}.\n\nInstrucción de formato:\nOrganiza la respuesta, cuando corresponda, en secciones claras:\n- Clasificación doctrinal\n- Respuesta breve\n- Fundamento bíblico\n- Catecismo / Magisterio\n- Errores comunes\n- Matices doctrinales\n- Conclusión pastoral\n\nContexto reciente de la conversación:\n${ctx || 'Sin contexto previo.'}\n\nPregunta actual:\n${q}`
+            }
+
+            function norm(q) {
+                return q.toLowerCase().replace(/[¿?¡!.,;:]/g, '').replace(/\s+/g, ' ').trim()
+            }
+
+            function reg(q) {
+                const n = norm(q);
+                if (!n || n.length < 8) return;
+                let e = questionRanking.find(i => i.normalized === n);
+                if (e) {
+                    e.count++;
+                    e.lastAskedAt = Date.now()
+                } else questionRanking.push({
+                    question: q,
+                    normalized: n,
+                    count: 1,
+                    lastAskedAt: Date.now()
+                });
+                questionRanking.sort((a, b) => b.count - a.count || b.lastAskedAt - a.lastAskedAt);
+                questionRanking = questionRanking.slice(0, 30);
+                localStorage.setItem(K.ranking, JSON.stringify(questionRanking));
+                renderRanking()
+            }
+
+            function renderRanking() {
+                const top = questionRanking.slice(0, 5);
+                if (!top.length) {
+                    rankingList.innerHTML = '<div class="empty">Todavía no hay preguntas frecuentes. El ranking se irá formando con el uso.</div>';
+                    return
+                }
+                rankingList.innerHTML = '';
+                top.forEach((it, i) => {
+                    const r = document.createElement('button');
+                    r.className = 'rankItem';
+                    r.innerHTML = `<span class="rankNum">${i + 1}</span><span class="rankQ">${esc(it.question)}</span><span class="rankC">${it.count}×</span>`;
+                    r.onclick = () => {
+                        input.value = it.question;
+                        resize();
+                        input.focus()
+                    };
+                    rankingList.appendChild(r)
+                })
+            }
+            async function sendMessage(prefilled = '', options = {}) {
+                const q = prefilled || input.value.trim(),
+                    visible = options.hiddenUserPrompt || q;
+                if (!q) return;
+                addMsg('user', visible, {
+                    actions: false
+                });
+                if (!options.hiddenUserPrompt) {
+                    reg(q);
+                    lastQuestion = q;
+                    localStorage.setItem(K.lastQuestion, q)
+                }
+                if (memoryEnabled) {
+                    conversationMemory.push({
+                        role: 'user',
+                        content: options.hiddenUserPrompt ? visible : q
+                    });
+                    saveMem()
+                }
+                input.value = '';
+                resize();
+                input.blur();
+                sendBtn.disabled = true;
+                sendBtn.innerHTML = '...';
+                status('consulting', 'Consultando');
+                const t = typing();
+                try {
+                    const r = await fetch('/chat', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            message: prompt(q)
+                        })
+                    });
+                    const data = await r.json();
+                    t.remove();
+                    if (!r.ok) {
+                        addMsg('bot', `⚠️ Error: ${data.error || 'No se pudo procesar la consulta.'}`, {
+                            actions: false
+                        });
+                        status('error', 'Error')
+                    } else {
+                        const reply = data.reply || 'No se recibió una respuesta válida.';
+                        lastBotReply = reply;
+                        localStorage.setItem(K.lastAnswer, reply);
+                        if (memoryEnabled) {
+                            conversationMemory.push({
+                                role: 'assistant',
+                                content: reply
+                            });
+                            saveMem()
+                        }
+                        addMsg('bot', reply);
+                        status('ready', 'Listo')
+                    }
+                } catch (e) {
+                    t.remove();
+                    addMsg('bot', '❌ Error de conexión: No se pudo contactar con el servidor.', {
+                        actions: false
+                    });
+                    status('error', 'Sin conexión')
+                } finally {
+                    sendBtn.disabled = false;
+                    sendBtn.innerHTML = '▶';
+                    if (innerWidth > 1024) input.focus()
+                }
+            }
+
+            function openPresentationModal() {
+                if (!lastBotReply) {
+                    toastMsg('Primero generá una respuesta doctrinal para convertirla en presentación.');
+                    return
+                }
+                const ti = document.getElementById('deckTitle');
+                const topic = lastQuestion ? lastQuestion.replace(/[¿?]/g, '').trim() : 'Capacitación doctrinal';
+                ti.value = topic.length > 70 ? topic.slice(0, 70) + '…' : topic;
+                presentationModal.classList.add('open');
+                presentationModal.setAttribute('aria-hidden', 'false')
+            }
+
+            function closePresentation() {
+                presentationModal.classList.remove('open');
+                presentationModal.setAttribute('aria-hidden', 'true')
+            }
+
+            function payload() {
+                return {
+                    title: document.getElementById('deckTitle').value.trim() || 'Capacitación doctrinal - Doctor Fidei',
+                    slideCount: Number(document.getElementById('slideCount').value || 8),
+                    audienceLevel: document.getElementById('audienceLevel').value,
+                    deckTone: document.getElementById('deckTone').value,
+                    deckStyle: document.getElementById('deckStyle').value,
+                    speakerNotes: document.getElementById('speakerNotes').value.trim(),
+                    sourceQuestion: lastQuestion,
+                    sourceAnswer: lastBotReply,
+                    visualInstruction: 'Crear slides con estética victoriana-renacentista: marco ornamental, serif elegante, dorado sobrio, textura de pergamino oscuro, diagramas catequéticos y gráficos tipo grabado antiguo cuando corresponda.'
+                }
+            }
+
+            function deckPrompt(p) {
+                return `Genera una presentación de capacitación en PowerPoint basada en la siguiente respuesta doctrinal.\n\nTítulo: ${p.title}\nCantidad de slides: ${p.slideCount}\nNivel de audiencia: ${p.audienceLevel}\nEnfoque: ${p.deckTone}\nEstilo visual: ${p.deckStyle}\nInstrucción visual: ${p.visualInstruction}\nNotas del presentador: ${p.speakerNotes || 'Sin notas adicionales.'}\n\nPregunta original:\n${p.sourceQuestion || 'No especificada.'}\n\nRespuesta doctrinal base:\n${p.sourceAnswer}\n\nEstructura sugerida:\n1. Portada\n2. La duda doctrinal\n3. Clasificación doctrinal\n4. Fundamento bíblico\n5. Catecismo y Magisterio\n6. Errores comunes\n7. Aplicación pastoral/apologética\n8. Cierre con síntesis y fuentes`
+            }
+            async function generatePresentation() {
+                const p = payload();
+                if (!p.sourceAnswer) {
+                    toastMsg('Primero generá una respuesta doctrinal para convertirla en presentación.');
+                    return;
+                }
+
+                // Mantenemos tus estados de UI originales
+                generateDeckBtn.disabled = true;
+                generateDeckBtn.textContent = 'Generando...';
+                status('consulting', 'Generando documento PDF');
+
+                try {
+                    const r = await fetch('/presentation', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(p)
+                    });
+
+                    if (!r.ok) throw new Error('Error en el servidor /presentation');
+
+                    const blob = await r.blob();
+                    if (!blob || blob.size === 0) throw new Error('Archivo vacío');
+
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+
+                    // Limpiamos el nombre del archivo igual que en tu código original
+                    const safe = (p.title.toLowerCase().replace(/[^a-z0-9áéíóúñü]+/gi, '-').replace(/^-|-$/g, '') || 'doctor-fidei-documento');
+
+                    a.href = url;
+                    a.download = `${safe}.pdf`; // <--- CAMBIO CLAVE: Ahora es .pdf
+
+                    document.body.appendChild(a);
+                    a.click();
+                    a.remove();
+
+                    window.URL.revokeObjectURL(url); // Liberar memoria
+
+                    toastMsg('Documento PDF generado correctamente.');
+                    closePresentation();
+                    status('ready', 'Listo');
+
+                } catch (e) {
+                    console.error('Error al generar PDF:', e);
+                    // Mantenemos tu elegante sistema de "Plan B" (Copiar prompt al portapapeles)
+                    try {
+                        await navigator.clipboard.writeText(deckPrompt(p));
+                        toastMsg('El motor de PDF falló. Copié el prompt de respaldo al portapapeles.', 5200);
+                    } catch {
+                        toastMsg('Error al generar. Copiá manualmente el contenido para tu documento.', 5200);
+                    }
+                    status('error', 'Error de generación');
+                } finally {
+                    generateDeckBtn.disabled = false;
+                    generateDeckBtn.textContent = 'Generar presentación'; // O "Generar PDF "
+                }
+            }
+            async function copyDeckPrompt() {
+                try {
+                    await navigator.clipboard.writeText(deckPrompt(payload()));
+                    toastMsg('Prompt de presentación copiado.')
+                } catch {
+                    toastMsg('No se pudo copiar el prompt.')
+                }
+            }
+            sendBtn.onclick = () => sendMessage();
+            clearBtn.onclick = () => {
+                conversationMemory = [];
+                if (memoryEnabled) localStorage.removeItem(K.conversation);
+                chat.innerHTML = '<div class="row bot"><div class="card"><div class="content"><b>Chat reiniciado.</b> Estoy a tu disposición para profundizar en la Doctrina Católica. ¿Qué tema deseas consultar hoy?</div></div></div>';
+                input.value = '';
+                resize();
+                status('ready', 'Listo');
+                scrollBottom()
+            };
+            memoryToggle.onclick = () => {
+                memoryEnabled = !memoryEnabled;
+                localStorage.setItem(K.memoryEnabled, String(memoryEnabled));
+                syncMemory();
+                if (!memoryEnabled) {
+                    conversationMemory = [];
+                    localStorage.removeItem(K.conversation);
+                    toastMsg('Memoria local desactivada y limpiada.')
+                } else toastMsg('Memoria local activada.')
+            };
+
+            function syncMemory() {
+                memoryToggle.classList.toggle('active', memoryEnabled);
+                memoryToggle.setAttribute('aria-pressed', String(memoryEnabled))
+            }
+            clearMemoryBtn.onclick = () => {
+                conversationMemory = [];
+                localStorage.removeItem(K.conversation);
+                localStorage.removeItem(K.lastAnswer);
+                localStorage.removeItem(K.lastQuestion);
+                lastBotReply = '';
+                lastQuestion = '';
+                toastMsg('Memoria local borrada.')
+            };
+            input.addEventListener('input', resize);
+            input.addEventListener('keydown', e => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    if (!sendBtn.disabled) sendMessage()
+                }
+            });
+            quickButtons.forEach(b => b.onclick = () => sendMessage(b.dataset.question || ''));
+            categoryButtons.forEach(b => b.onclick = () => {
+                input.value = b.dataset.question || '';
+                resize();
+                input.focus()
+            });
+            modeOptions.forEach(o => o.onclick = () => {
+                modeOptions.forEach(x => x.classList.remove('active'));
+                o.classList.add('active');
+                responseMode = o.dataset.mode || 'breve'
+            });
+            toneOptions.forEach(o => o.onclick = () => {
+                toneOptions.forEach(x => x.classList.remove('active'));
+                o.classList.add('active');
+                responseTone = o.dataset.tone || 'pastoral'
+            });
+            closePresentationModal.onclick = closePresentation;
+            presentationModal.onclick = e => {
+                if (e.target === presentationModal) closePresentation()
+            };
+            generateDeckBtn.onclick = generatePresentation;
+            copyDeckPromptBtn.onclick = copyDeckPrompt;
+            document.addEventListener('keydown', e => {
+                if (e.key === 'Escape' && presentationModal.classList.contains('open')) closePresentation()
+            });
+            resize();
+            syncMemory();
+            renderRanking();
+            window.openPresentationModal = openPresentationModal;
+            window.generatePresentation = generatePresentation;
+            window.copyDeckPrompt = copyDeckPrompt;
         });
     </script>
 </body>
