@@ -3,9 +3,11 @@ import cors from "cors";
 import dotenv from "dotenv";
 import OpenAI from "openai"; // Volvemos a OpenAI para el chat
 import { GoogleGenerativeAI } from "@google/generative-ai"; // Gemini para el PDF
-import puppeteer from "puppeteer";
+//import puppeteer from "puppeteer";
 import path from "path";
 import { fileURLToPath } from "url";
+import chromium from "@sparticuz/chromium";
+import puppeteer from "puppeteer-core";
 
 dotenv.config();
 
@@ -139,7 +141,7 @@ app.post("/presentation", async (req, res) => {
   try {
     const { title, slideCount, sourceAnswer } = req.body;
 
-    const model = genAI.getGenerativeModel({ 
+    const model = genAI.getGenerativeModel({
       model: "gemini-1.5-flash",
       generationConfig: { responseMimeType: "application/json" }
     });
@@ -171,8 +173,19 @@ app.post("/presentation", async (req, res) => {
       </body>
     </html>`;
 
-    const browser = await puppeteer.launch({ headless: "new", args: ['--no-sandbox'] });
+    //const browser = await puppeteer.launch({ headless: "new", args: ['--no-sandbox'] });
+    //const page = await browser.newPage();
+
+    const browser = await puppeteer.launch({
+      args: chromium.args,
+      defaultViewport: chromium.defaultViewport,
+      executablePath: await chromium.executablePath(), // Esto busca el binario ligero
+      headless: chromium.headless,
+      ignoreHTTPSErrors: true,
+    });
+
     const page = await browser.newPage();
+
     await page.setContent(htmlContent);
     const pdfBuffer = await page.pdf({ format: 'A4', printBackground: true });
     await browser.close();
