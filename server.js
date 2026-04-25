@@ -1,7 +1,9 @@
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
-import OpenAI from "openai";
+import OpenAI from "openai"; // Volvemos a OpenAI para el chat
+import { GoogleGenerativeAI } from "@google/generative-ai"; // Gemini para el PDF
+import puppeteer from "puppeteer";
 import path from "path";
 import { fileURLToPath } from "url";
 
@@ -14,12 +16,12 @@ const app = express();
 const port = process.env.PORT || 3000;
 
 app.use(cors());
-app.use(express.json({ limit: "2mb" }));
+app.use(express.json({ limit: "5mb" }));
 app.use(express.static(path.join(__dirname, "public")));
 
-const client = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
+// --- CONFIGURACIÓN DE APIS ---
+const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
 const SYSTEM_PROMPT = `
 Eres Doctor Fidei, un agente experto en doctrina, Magisterio y apologética católica.
@@ -112,137 +114,74 @@ REGLAS ESTRICTAS SOBRE CITAS
 
 Para dirigirte al usuario, dile siempre Mi REy, para darle ese toque de cercanía y calidez, 
 puedes utilizar frases que cumplan ese fin.
-
-Me gusta mucho mi REY!
 `;
 
-// ================= CHAT =================
+// ================= CHAT (OPENAI ORIGINAL) =================
 app.post("/chat", async (req, res) => {
   try {
     const { message } = req.body;
-
-    if (!message || !message.trim()) {
-      return res.status(400).json({ error: "Falta el mensaje." });
-    }
-
-    const response = await client.responses.create({
-      model: "gpt-5",
-      input: [
+    const response = await openai.chat.completions.create({
+      model: "gpt-4-turbo", // Corregido de "gpt-5"
+      messages: [
         { role: "system", content: SYSTEM_PROMPT },
         { role: "user", content: message }
-      ]
+      ],
     });
-
-    res.json({ reply: response.output_text || "No se pudo generar respuesta." });
-
+    res.json({ reply: response.choices[0].message.content });
   } catch (error) {
-    console.error("Error en /chat:", error);
-    res.status(500).json({ error: "Error en IA" });
+    console.error("Error en chat:", error);
+    res.status(500).json({ error: "Error en IA de Chat" });
   }
 });
 
-// ================= PRESENTATION =================
+// ================= PDF (GEMINI + PUPPETEER) =================
 app.post("/presentation", async (req, res) => {
   try {
-    const {
-      title,
-      slideCount,
-      sourceQuestion,
-      sourceAnswer,
-      audienceLevel,
-      deckTone,
-      deckStyle,
-      speakerNotes
-    } = req.body;
+    const { title, slideCount, sourceAnswer } = req.body;
 
-    // 🔥 IMPORT DINÁMICO (CLAVE PARA EVITAR 500 EN VERCEL)
-    const { default: pptxgen } = await import("pptxgenjs");
-
-    if (!sourceAnswer || !sourceAnswer.trim()) {
-      return res.status(400).json({ error: "Falta contenido para generar PPT." });
-    }
-
-    const pptx = new pptxgen();
-    pptx.layout = "LAYOUT_WIDE";
-
-    const bg = "0B1020";
-    const gold = "D4AF37";
-    const white = "F5F7FB";
-
-    function addSlide(title, content) {
-      const slide = pptx.addSlide();
-
-      slide.background = { color: bg };
-
-      slide.addText(title, {
-        x: 0.7,
-        y: 0.5,
-        w: 11.5,
-        fontSize: 26,
-        bold: true,
-        color: gold
-      });
-
-      slide.addText(content || "", {
-        x: 0.7,
-        y: 1.3,
-        w: 11.5,
-        h: 5,
-        fontSize: 16,
-        color: white,
-        fit: "shrink"
-      });
-    }
-
-    // portada
-    addSlide(
-      title || "Capacitación doctrinal",
-      sourceQuestion || ""
-    );
-
-    // contenido
-    const sections = sourceAnswer.split("##").filter(s => s.trim());
-
-    sections.slice(0, (slideCount || 8) - 1).forEach(sec => {
-      const lines = sec.trim().split("\n");
-      const t = lines[0] || "Tema";
-      const body = lines.slice(1).join("\n").slice(0, 1200);
-      addSlide(t, body);
+    const model = genAI.getGenerativeModel({ 
+      model: "gemini-1.5-flash",
+      generationConfig: { responseMimeType: "application/json" }
     });
 
-    if (speakerNotes) {
-      addSlide("Notas del presentador", speakerNotes);
-    }
+    const prompt = `Actúa como diseñador editorial. Organiza este contenido en ${slideCount} páginas para un PDF. 
+    Responde en JSON: { "pages": [{ "header": "...", "body": "..." }] }. 
+    Contenido: ${sourceAnswer}`;
 
-    const buffer = await pptx.write({ outputType: "nodebuffer" });
+    const aiResult = await model.generateContent(prompt);
+    const data = JSON.parse(aiResult.response.text());
 
-    res.setHeader(
-      "Content-Disposition",
-      `attachment; filename="doctor-fidei.pptx"`
-    );
+    const htmlContent = `
+    <html>
+      <head>
+        <style>
+          @page { size: A4; margin: 0; }
+          body { background: #03050a; color: #f5f7fb; font-family: sans-serif; }
+          .page { width: 210mm; height: 297mm; padding: 25mm; border: 12px solid #d4af37; page-break-after: always; box-sizing: border-box; }
+          h1 { color: #d4af37; text-align: center; border-bottom: 1px solid #d4af37; }
+        </style>
+      </head>
+      <body>
+        ${data.pages.map(p => `
+          <div class="page">
+            <h1>${p.header}</h1>
+            <div class="content">${p.body.replace(/\n/g, '<br>')}</div>
+          </div>
+        `).join('')}
+      </body>
+    </html>`;
 
-    res.setHeader(
-      "Content-Type",
-      "application/vnd.openxmlformats-officedocument.presentationml.presentation"
-    );
+    const browser = await puppeteer.launch({ headless: "new", args: ['--no-sandbox'] });
+    const page = await browser.newPage();
+    await page.setContent(htmlContent);
+    const pdfBuffer = await page.pdf({ format: 'A4', printBackground: true });
+    await browser.close();
 
-    res.send(buffer);
-
+    res.contentType("application/pdf");
+    res.send(pdfBuffer);
   } catch (error) {
-    console.error("ERROR REAL EN /presentation:", error);
-    res.status(500).json({ error: "Error generando presentación" });
+    res.status(500).send("Error generando PDF");
   }
 });
 
-// ================= FRONT =================
-app.get("/favicon.ico", (req, res) => {
-  res.status(204).end();
-});
-app.get("*", (req, res) => {
-  res.sendFile(path.join(__dirname, "public", "index.html"));
-});
-
-// ================= START =================
-app.listen(port, () => {
-  console.log(`Servidor corriendo en http://localhost:${port}`);
-});
+app.listen(port, () => console.log(`Doctor Fidei Híbrido en puerto ${port}`));

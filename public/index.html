@@ -1,41 +1,1068 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-<title>Doctor Fidei - Asistente Doctrinal</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<style>
-:root{--bg:#03050a;--panel:rgba(13,20,38,.64);--gold:#d4af37;--gold2:#f4dc92;--text:#f5f7fb;--muted:#98a4c7;--soft:#cfd6eb;--blue:#5aa9ff;--ok:#22c55e;--warn:#facc15;--err:#ef4444;--r-lg:1.5rem;--r-md:1rem;--r-sm:.75rem;--shadow:0 1rem 3rem -.5rem rgba(0,0,0,.5)}
-*{box-sizing:border-box;outline:none}html,body{margin:0;min-height:100%;font-family:Inter,sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden}button,input,select,textarea{font-family:inherit}.app-bg{position:fixed;inset:0;z-index:-1;background:radial-gradient(circle at 10% 10%,rgba(212,175,55,.07),transparent 42%),radial-gradient(circle at 90% 90%,rgba(90,169,255,.06),transparent 42%),linear-gradient(135deg,#03050a 0%,#060b17 50%,#02030a 100%)}.app-bg:before{content:'';position:absolute;inset:0;background-image:url('data:image/svg+xml,%3Csvg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"%3E%3Cg fill="none" fill-rule="evenodd"%3E%3Cg fill="%23fff" fill-opacity="0.023"%3E%3Cpath d="M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6zM36 4V0h-2v4h-4v2h4v4h2V6h4V4h-4z"/%3E%3C/g%3E%3C/g%3E%3C/svg%3E');opacity:.55}.shell{display:flex;flex-direction:column;gap:1.5rem;padding:1.5rem;min-height:100vh}@media(min-width:1024px){.shell{display:grid;grid-template-areas:"header header" "sidebar main";grid-template-columns:minmax(320px,2fr) minmax(0,5fr);grid-template-rows:auto minmax(0,1fr)}}.panel{background:var(--panel);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,.065);border-radius:var(--r-lg);box-shadow:var(--shadow)}.header{grid-area:header;display:flex;align-items:center;justify-content:space-between;gap:1.5rem;padding:1rem 1.5rem}.brand{display:flex;align-items:center;gap:1.2rem;flex-wrap:wrap}.logoBox{position:relative;width:clamp(50px,10vw,70px);height:clamp(50px,10vw,70px);border-radius:50%;overflow:hidden;box-shadow:0 0 1rem rgba(212,175,55,.3);border:1px solid rgba(212,175,55,.18);background:rgba(212,175,55,.08)}.logoBox img{width:100%;height:100%;object-fit:cover}.brand h1{margin:0;font-family:'Cinzel Decorative',serif;font-size:clamp(1.4rem,4vw,1.9rem);letter-spacing:.05em}.brand h1 span{color:var(--gold)}.brand p{margin:.2rem 0 0;color:var(--muted)}.status{display:flex;align-items:center;gap:.5rem;padding:.5rem 1rem;font-size:.85rem;font-weight:700;background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.3);border-radius:999px;color:#e9ffee}.status.consulting{background:rgba(250,204,21,.1);border-color:rgba(250,204,21,.28);color:#fff6bf}.status.error{background:rgba(239,68,68,.1);border-color:rgba(239,68,68,.28);color:#ffd7d7}.dot{width:.5rem;height:.5rem;background:var(--ok);border-radius:50%}.status.consulting .dot{background:var(--warn)}.status.error .dot{background:var(--err)}.sidebar{grid-area:sidebar;display:flex;flex-direction:column;gap:1.5rem}.side{padding:1.5rem}.ptitle{margin:0 0 1.1rem;font-size:.8rem;font-weight:800;text-transform:uppercase;letter-spacing:.15em;color:var(--gold2)}.intro{margin:0;color:var(--muted);font-size:.95rem;line-height:1.65}.selector{display:grid;grid-template-columns:1fr 1fr;gap:.3rem;background:rgba(0,0,0,.2);border-radius:var(--r-sm);padding:.3rem;border:1px solid rgba(255,255,255,.06)}.tone{grid-template-columns:1fr}.opt,.toneOpt{padding:.65rem;text-align:center;font-size:.9rem;font-weight:700;color:var(--muted);cursor:pointer;border-radius:calc(var(--r-sm) - .2rem);transition:.2s}.toneOpt{display:flex;justify-content:space-between;text-align:left;gap:.7rem}.toneOpt small{color:rgba(255,255,255,.45)}.opt.active,.toneOpt.active{color:#000;background:linear-gradient(135deg,var(--gold),var(--gold2));box-shadow:0 .2rem 1rem rgba(212,175,55,.3)}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1rem}.quick,.cat,.rankItem{border:1px solid rgba(255,255,255,.06);background:rgba(255,255,255,.025);color:var(--text);border-radius:var(--r-md);padding:1rem;cursor:pointer;transition:.2s;text-align:left}.quick{display:flex;align-items:center;gap:1rem}.quick:hover,.cat:hover,.rankItem:hover{background:rgba(90,169,255,.06);border-color:rgba(90,169,255,.22);transform:translateY(-.15rem)}.icon{width:2.1rem;height:2.1rem;display:grid;place-items:center;border-radius:.75rem;background:rgba(212,175,55,.08);color:var(--gold)}.catGrid,.ranking{display:flex;flex-direction:column;gap:.75rem}.cat{display:flex;justify-content:space-between;color:var(--soft);font-weight:700}.memoryRow{display:flex;align-items:center;justify-content:space-between;gap:1rem;margin-top:.85rem;padding:.75rem .85rem;border:1px solid rgba(255,255,255,.06);background:rgba(255,255,255,.025);border-radius:var(--r-sm)}.toggle{position:relative;width:3rem;height:1.55rem;border-radius:999px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.08);cursor:pointer}.toggle:after{content:'';position:absolute;top:.17rem;left:.18rem;width:1.1rem;height:1.1rem;border-radius:50%;background:rgba(255,255,255,.65);transition:.25s}.toggle.active{background:rgba(212,175,55,.28);border-color:rgba(212,175,55,.4)}.toggle.active:after{left:1.58rem;background:var(--gold2)}.secondary{margin-top:.8rem;width:100%;border:1px solid rgba(255,255,255,.07);background:rgba(255,255,255,.035);color:var(--soft);border-radius:var(--r-sm);padding:.72rem;font-weight:800;cursor:pointer}.small{margin:.6rem 0 0;color:rgba(255,255,255,.44);font-size:.76rem;line-height:1.45}.rankItem{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:.7rem;padding:.72rem;border-radius:var(--r-sm)}.rankNum{width:1.65rem;height:1.65rem;border-radius:.55rem;display:grid;place-items:center;background:rgba(212,175,55,.09);color:var(--gold2);font-weight:800;font-size:.78rem}.rankQ{color:var(--soft);font-size:.82rem;line-height:1.35;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}.rankC{font-size:.75rem;color:rgba(255,255,255,.46);font-weight:800}.empty{color:rgba(255,255,255,.45);font-size:.84rem;line-height:1.5}.main{grid-area:main;display:flex;flex-direction:column;min-height:100%;overflow:hidden}.chat{flex:1;padding:1.5rem;display:flex;flex-direction:column;gap:1rem;min-height:52vh}.row{display:flex;width:100%;animation:pop .25s ease}.row.user{justify-content:flex-end}.row.bot{justify-content:flex-start}.card{max-width:88%;border-radius:var(--r-md);overflow:hidden;word-wrap:break-word}.row.user .card{background:linear-gradient(135deg,rgba(90,169,255,.16),rgba(90,169,255,.055));border:1px solid rgba(90,169,255,.22);border-bottom-right-radius:.25rem}.row.bot .card{background:rgba(255,255,255,.032);border:1px solid rgba(255,255,255,.065);border-bottom-left-radius:.25rem}.content{padding:1rem;font-size:.98rem;line-height:1.68}.content strong,.content b{color:var(--gold2)}.content h3{margin:1rem 0 .55rem;padding:.6rem .75rem;border-left:.2rem solid var(--gold);border-radius:.35rem;background:rgba(212,175,55,.06);color:#fff4cc;font-size:1rem}.content h3:first-child{margin-top:0}.content ul{margin:.65rem 0 .85rem;padding-left:1.35rem}.content blockquote{margin:.8rem 0;padding:.75rem 1rem;border-left:.2rem solid var(--gold);background:rgba(212,175,55,.055);border-radius:.3rem;color:#fff6d7}.sourceBox{margin-top:.9rem;padding:.85rem 1rem;border:1px solid rgba(212,175,55,.18);border-radius:.85rem;background:rgba(212,175,55,.06);color:#fff7dc;font-size:.92rem}.sourceTitle{display:block;margin-bottom:.35rem;color:var(--gold2);font-weight:800}.actions{display:flex;flex-wrap:wrap;gap:.55rem;padding:.75rem 1rem 1rem;border-top:1px solid rgba(255,255,255,.055);background:rgba(0,0,0,.12)}.mini{border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.035);color:var(--soft);border-radius:999px;padding:.46rem .72rem;font-size:.78rem;font-weight:800;cursor:pointer}.mini:hover{background:rgba(212,175,55,.1);color:var(--gold2)}.typing{display:flex;align-items:center;gap:.8rem;color:var(--muted);font-size:.9rem}.dots{display:flex;gap:.3rem}.dots span{width:.5rem;height:.5rem;background:var(--gold);border-radius:50%;opacity:.4;animation:dot 1.4s infinite}.dots span:nth-child(2){animation-delay:.2s}.dots span:nth-child(3){animation-delay:.4s}.inputArea{position:sticky;bottom:0;width:100%;padding:1.2rem;background:rgba(3,5,10,.84);backdrop-filter:blur(10px);border-top:1px solid rgba(255,255,255,.06);margin-top:auto}.inputWrap{display:flex;align-items:flex-end;gap:.8rem;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:var(--r-md);padding:.6rem}.inputWrap:focus-within{border-color:rgba(90,169,255,.4);background:rgba(255,255,255,.05)}#question{flex:1;background:transparent;border:none;color:var(--text);font-size:1rem;line-height:1.5;padding:.5rem;resize:none;min-height:2.5rem;max-height:10rem}#question::placeholder{color:var(--muted)}.actBtn{display:flex;align-items:center;justify-content:center;width:2.5rem;height:2.5rem;border-radius:var(--r-sm);border:none;cursor:pointer}.clear{background:rgba(255,255,255,.035);color:var(--muted);border:1px solid rgba(255,255,255,.065)}.send{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#000;font-weight:800;font-size:1.1rem}.send:disabled{opacity:.5;cursor:not-allowed}.foot{margin:.7rem 0 0;text-align:center;font-size:.76rem;color:rgba(255,255,255,.46);line-height:1.45}.modalBg{position:fixed;inset:0;background:rgba(0,0,0,.72);backdrop-filter:blur(10px);z-index:50;display:none;align-items:center;justify-content:center;padding:1rem}.modalBg.open{display:flex}.modal{width:min(720px,100%);max-height:min(86vh,760px);overflow-y:auto;border-radius:var(--r-lg);border:1px solid rgba(255,255,255,.08);background:rgba(8,13,25,.96);box-shadow:0 2rem 7rem rgba(0,0,0,.62)}.modalHead{padding:1.3rem 1.5rem;border-bottom:1px solid rgba(255,255,255,.07);display:flex;justify-content:space-between;align-items:flex-start;gap:1rem}.modalHead h3{margin:0;font-size:1.05rem;color:#fff7dd}.modalHead p{margin:.35rem 0 0;color:var(--muted);line-height:1.5;font-size:.9rem}.close{width:2.2rem;height:2.2rem;border-radius:.7rem;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.04);color:var(--soft);cursor:pointer;font-weight:800}.modalBody{padding:1.5rem}.form{display:grid;grid-template-columns:1fr 1fr;gap:1rem}.field{display:flex;flex-direction:column;gap:.45rem}.field.full{grid-column:1/-1}.field label{color:var(--gold2);font-size:.78rem;text-transform:uppercase;letter-spacing:.09em;font-weight:800}.field input,.field select,.field textarea{width:100%;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.04);color:var(--text);border-radius:var(--r-sm);padding:.8rem;font:inherit}.field select option{background:#0b1020;color:#fff}.field textarea{min-height:6rem;resize:vertical;line-height:1.5}.badge{display:inline-flex;margin-top:.9rem;padding:.45rem .65rem;border-radius:999px;border:1px solid rgba(212,175,55,.18);background:rgba(212,175,55,.06);color:#fff4c9;font-size:.78rem;font-weight:800}.modalActions{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:.8rem;padding:1.2rem 1.5rem;border-top:1px solid rgba(255,255,255,.07);background:rgba(0,0,0,.12)}.primary,.outline{border-radius:var(--r-sm);padding:.78rem 1rem;font-weight:800;cursor:pointer}.primary{border:none;background:linear-gradient(135deg,var(--gold),var(--gold2));color:#0b0700}.outline{border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.04);color:var(--soft)}.toast{position:fixed;right:1rem;bottom:1rem;z-index:80;max-width:min(420px,calc(100vw - 2rem));display:none;padding:.9rem 1rem;border-radius:var(--r-sm);border:1px solid rgba(212,175,55,.2);background:rgba(8,13,25,.96);color:var(--soft);box-shadow:var(--shadow);font-size:.9rem;line-height:1.45}.toast.show{display:block}@media(min-width:1200px){.main{max-height:calc(100vh - 8.5rem)}.chat{overflow-y:auto;scroll-behavior:smooth}}@media(max-width:760px){.shell{padding:.9rem;gap:.9rem}.header{padding:1rem}.side{padding:1rem}.grid{grid-template-columns:1fr}.card{max-width:100%}.chat{padding:1rem}.inputArea{padding:.8rem;padding-bottom:calc(.8rem + env(safe-area-inset-bottom))}.form{grid-template-columns:1fr}.modalActions{justify-content:stretch}.primary,.outline{width:100%}}
-@keyframes pop{from{transform:scale(.96) translateY(.7rem);opacity:0}to{transform:scale(1) translateY(0);opacity:1}}@keyframes dot{0%,60%,100%{transform:translateY(0);opacity:.4}30%{transform:translateY(-.4rem);opacity:1}}
-</style>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>Doctor Fidei - Asistente Doctrinal</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700&family=Inter:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --bg: #03050a;
+            --panel: rgba(13, 20, 38, .64);
+            --gold: #d4af37;
+            --gold2: #f4dc92;
+            --text: #f5f7fb;
+            --muted: #98a4c7;
+            --soft: #cfd6eb;
+            --blue: #5aa9ff;
+            --ok: #22c55e;
+            --warn: #facc15;
+            --err: #ef4444;
+            --r-lg: 1.5rem;
+            --r-md: 1rem;
+            --r-sm: .75rem;
+            --shadow: 0 1rem 3rem -.5rem rgba(0, 0, 0, .5)
+        }
+
+        * {
+            box-sizing: border-box;
+            outline: none
+        }
+
+        html,
+        body {
+            margin: 0;
+            min-height: 100%;
+            font-family: Inter, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            overflow-x: hidden
+        }
+
+        button,
+        input,
+        select,
+        textarea {
+            font-family: inherit
+        }
+
+        .app-bg {
+            position: fixed;
+            inset: 0;
+            z-index: -1;
+            background: radial-gradient(circle at 10% 10%, rgba(212, 175, 55, .07), transparent 42%), radial-gradient(circle at 90% 90%, rgba(90, 169, 255, .06), transparent 42%), linear-gradient(135deg, #03050a 0%, #060b17 50%, #02030a 100%)
+        }
+
+        .app-bg:before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image: url('data:image/svg+xml,%3Csvg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"%3E%3Cg fill="none" fill-rule="evenodd"%3E%3Cg fill="%23fff" fill-opacity="0.023"%3E%3Cpath d="M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6zM36 4V0h-2v4h-4v2h4v4h2V6h4V4h-4z"/%3E%3C/g%3E%3C/g%3E%3C/svg%3E');
+            opacity: .55
+        }
+
+        .shell {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            padding: 1.5rem;
+            min-height: 100vh
+        }
+
+        @media(min-width:1024px) {
+            .shell {
+                display: grid;
+                grid-template-areas: "header header" "sidebar main";
+                grid-template-columns: minmax(320px, 2fr) minmax(0, 5fr);
+                grid-template-rows: auto minmax(0, 1fr)
+            }
+        }
+
+        .panel {
+            background: var(--panel);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, .065);
+            border-radius: var(--r-lg);
+            box-shadow: var(--shadow)
+        }
+
+        .header {
+            grid-area: header;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1.5rem;
+            padding: 1rem 1.5rem
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 1.2rem;
+            flex-wrap: wrap
+        }
+
+        .logoBox {
+            position: relative;
+            width: clamp(50px, 10vw, 70px);
+            height: clamp(50px, 10vw, 70px);
+            border-radius: 50%;
+            overflow: hidden;
+            box-shadow: 0 0 1rem rgba(212, 175, 55, .3);
+            border: 1px solid rgba(212, 175, 55, .18);
+            background: rgba(212, 175, 55, .08)
+        }
+
+        .logoBox img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover
+        }
+
+        .brand h1 {
+            margin: 0;
+            font-family: 'Cinzel Decorative', serif;
+            font-size: clamp(1.4rem, 4vw, 1.9rem);
+            letter-spacing: .05em
+        }
+
+        .brand h1 span {
+            color: var(--gold)
+        }
+
+        .brand p {
+            margin: .2rem 0 0;
+            color: var(--muted)
+        }
+
+        .status {
+            display: flex;
+            align-items: center;
+            gap: .5rem;
+            padding: .5rem 1rem;
+            font-size: .85rem;
+            font-weight: 700;
+            background: rgba(34, 197, 94, .1);
+            border: 1px solid rgba(34, 197, 94, .3);
+            border-radius: 999px;
+            color: #e9ffee
+        }
+
+        .status.consulting {
+            background: rgba(250, 204, 21, .1);
+            border-color: rgba(250, 204, 21, .28);
+            color: #fff6bf
+        }
+
+        .status.error {
+            background: rgba(239, 68, 68, .1);
+            border-color: rgba(239, 68, 68, .28);
+            color: #ffd7d7
+        }
+
+        .dot {
+            width: .5rem;
+            height: .5rem;
+            background: var(--ok);
+            border-radius: 50%
+        }
+
+        .status.consulting .dot {
+            background: var(--warn)
+        }
+
+        .status.error .dot {
+            background: var(--err)
+        }
+
+        .sidebar {
+            grid-area: sidebar;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem
+        }
+
+        .side {
+            padding: 1.5rem
+        }
+
+        .ptitle {
+            margin: 0 0 1.1rem;
+            font-size: .8rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: .15em;
+            color: var(--gold2)
+        }
+
+        .intro {
+            margin: 0;
+            color: var(--muted);
+            font-size: .95rem;
+            line-height: 1.65
+        }
+
+        .selector {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: .3rem;
+            background: rgba(0, 0, 0, .2);
+            border-radius: var(--r-sm);
+            padding: .3rem;
+            border: 1px solid rgba(255, 255, 255, .06)
+        }
+
+        .tone {
+            grid-template-columns: 1fr
+        }
+
+        .opt,
+        .toneOpt {
+            padding: .65rem;
+            text-align: center;
+            font-size: .9rem;
+            font-weight: 700;
+            color: var(--muted);
+            cursor: pointer;
+            border-radius: calc(var(--r-sm) - .2rem);
+            transition: .2s
+        }
+
+        .toneOpt {
+            display: flex;
+            justify-content: space-between;
+            text-align: left;
+            gap: .7rem
+        }
+
+        .toneOpt small {
+            color: rgba(255, 255, 255, .45)
+        }
+
+        .opt.active,
+        .toneOpt.active {
+            color: #000;
+            background: linear-gradient(135deg, var(--gold), var(--gold2));
+            box-shadow: 0 .2rem 1rem rgba(212, 175, 55, .3)
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 1rem
+        }
+
+        .quick,
+        .cat,
+        .rankItem {
+            border: 1px solid rgba(255, 255, 255, .06);
+            background: rgba(255, 255, 255, .025);
+            color: var(--text);
+            border-radius: var(--r-md);
+            padding: 1rem;
+            cursor: pointer;
+            transition: .2s;
+            text-align: left
+        }
+
+        .quick {
+            display: flex;
+            align-items: center;
+            gap: 1rem
+        }
+
+        .quick:hover,
+        .cat:hover,
+        .rankItem:hover {
+            background: rgba(90, 169, 255, .06);
+            border-color: rgba(90, 169, 255, .22);
+            transform: translateY(-.15rem)
+        }
+
+        .icon {
+            width: 2.1rem;
+            height: 2.1rem;
+            display: grid;
+            place-items: center;
+            border-radius: .75rem;
+            background: rgba(212, 175, 55, .08);
+            color: var(--gold)
+        }
+
+        .catGrid,
+        .ranking {
+            display: flex;
+            flex-direction: column;
+            gap: .75rem
+        }
+
+        .cat {
+            display: flex;
+            justify-content: space-between;
+            color: var(--soft);
+            font-weight: 700
+        }
+
+        .memoryRow {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            margin-top: .85rem;
+            padding: .75rem .85rem;
+            border: 1px solid rgba(255, 255, 255, .06);
+            background: rgba(255, 255, 255, .025);
+            border-radius: var(--r-sm)
+        }
+
+        .toggle {
+            position: relative;
+            width: 3rem;
+            height: 1.55rem;
+            border-radius: 999px;
+            border: 1px solid rgba(255, 255, 255, .1);
+            background: rgba(255, 255, 255, .08);
+            cursor: pointer
+        }
+
+        .toggle:after {
+            content: '';
+            position: absolute;
+            top: .17rem;
+            left: .18rem;
+            width: 1.1rem;
+            height: 1.1rem;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, .65);
+            transition: .25s
+        }
+
+        .toggle.active {
+            background: rgba(212, 175, 55, .28);
+            border-color: rgba(212, 175, 55, .4)
+        }
+
+        .toggle.active:after {
+            left: 1.58rem;
+            background: var(--gold2)
+        }
+
+        .secondary {
+            margin-top: .8rem;
+            width: 100%;
+            border: 1px solid rgba(255, 255, 255, .07);
+            background: rgba(255, 255, 255, .035);
+            color: var(--soft);
+            border-radius: var(--r-sm);
+            padding: .72rem;
+            font-weight: 800;
+            cursor: pointer
+        }
+
+        .small {
+            margin: .6rem 0 0;
+            color: rgba(255, 255, 255, .44);
+            font-size: .76rem;
+            line-height: 1.45
+        }
+
+        .rankItem {
+            display: grid;
+            grid-template-columns: auto 1fr auto;
+            align-items: center;
+            gap: .7rem;
+            padding: .72rem;
+            border-radius: var(--r-sm)
+        }
+
+        .rankNum {
+            width: 1.65rem;
+            height: 1.65rem;
+            border-radius: .55rem;
+            display: grid;
+            place-items: center;
+            background: rgba(212, 175, 55, .09);
+            color: var(--gold2);
+            font-weight: 800;
+            font-size: .78rem
+        }
+
+        .rankQ {
+            color: var(--soft);
+            font-size: .82rem;
+            line-height: 1.35;
+            overflow: hidden;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical
+        }
+
+        .rankC {
+            font-size: .75rem;
+            color: rgba(255, 255, 255, .46);
+            font-weight: 800
+        }
+
+        .empty {
+            color: rgba(255, 255, 255, .45);
+            font-size: .84rem;
+            line-height: 1.5
+        }
+
+        .main {
+            grid-area: main;
+            display: flex;
+            flex-direction: column;
+            min-height: 100%;
+            overflow: hidden
+        }
+
+        .chat {
+            flex: 1;
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            min-height: 52vh
+        }
+
+        .row {
+            display: flex;
+            width: 100%;
+            animation: pop .25s ease
+        }
+
+        .row.user {
+            justify-content: flex-end
+        }
+
+        .row.bot {
+            justify-content: flex-start
+        }
+
+        .card {
+            max-width: 88%;
+            border-radius: var(--r-md);
+            overflow: hidden;
+            word-wrap: break-word
+        }
+
+        .row.user .card {
+            background: linear-gradient(135deg, rgba(90, 169, 255, .16), rgba(90, 169, 255, .055));
+            border: 1px solid rgba(90, 169, 255, .22);
+            border-bottom-right-radius: .25rem
+        }
+
+        .row.bot .card {
+            background: rgba(255, 255, 255, .032);
+            border: 1px solid rgba(255, 255, 255, .065);
+            border-bottom-left-radius: .25rem
+        }
+
+        .content {
+            padding: 1rem;
+            font-size: .98rem;
+            line-height: 1.68
+        }
+
+        .content strong,
+        .content b {
+            color: var(--gold2)
+        }
+
+        .content h3 {
+            margin: 1rem 0 .55rem;
+            padding: .6rem .75rem;
+            border-left: .2rem solid var(--gold);
+            border-radius: .35rem;
+            background: rgba(212, 175, 55, .06);
+            color: #fff4cc;
+            font-size: 1rem
+        }
+
+        .content h3:first-child {
+            margin-top: 0
+        }
+
+        .content ul {
+            margin: .65rem 0 .85rem;
+            padding-left: 1.35rem
+        }
+
+        .content blockquote {
+            margin: .8rem 0;
+            padding: .75rem 1rem;
+            border-left: .2rem solid var(--gold);
+            background: rgba(212, 175, 55, .055);
+            border-radius: .3rem;
+            color: #fff6d7
+        }
+
+        .sourceBox {
+            margin-top: .9rem;
+            padding: .85rem 1rem;
+            border: 1px solid rgba(212, 175, 55, .18);
+            border-radius: .85rem;
+            background: rgba(212, 175, 55, .06);
+            color: #fff7dc;
+            font-size: .92rem
+        }
+
+        .sourceTitle {
+            display: block;
+            margin-bottom: .35rem;
+            color: var(--gold2);
+            font-weight: 800
+        }
+
+        .actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: .55rem;
+            padding: .75rem 1rem 1rem;
+            border-top: 1px solid rgba(255, 255, 255, .055);
+            background: rgba(0, 0, 0, .12)
+        }
+
+        .mini {
+            border: 1px solid rgba(255, 255, 255, .08);
+            background: rgba(255, 255, 255, .035);
+            color: var(--soft);
+            border-radius: 999px;
+            padding: .46rem .72rem;
+            font-size: .78rem;
+            font-weight: 800;
+            cursor: pointer
+        }
+
+        .mini:hover {
+            background: rgba(212, 175, 55, .1);
+            color: var(--gold2)
+        }
+
+        .typing {
+            display: flex;
+            align-items: center;
+            gap: .8rem;
+            color: var(--muted);
+            font-size: .9rem
+        }
+
+        .dots {
+            display: flex;
+            gap: .3rem
+        }
+
+        .dots span {
+            width: .5rem;
+            height: .5rem;
+            background: var(--gold);
+            border-radius: 50%;
+            opacity: .4;
+            animation: dot 1.4s infinite
+        }
+
+        .dots span:nth-child(2) {
+            animation-delay: .2s
+        }
+
+        .dots span:nth-child(3) {
+            animation-delay: .4s
+        }
+
+        .inputArea {
+            position: sticky;
+            bottom: 0;
+            width: 100%;
+            padding: 1.2rem;
+            background: rgba(3, 5, 10, .84);
+            backdrop-filter: blur(10px);
+            border-top: 1px solid rgba(255, 255, 255, .06);
+            margin-top: auto
+        }
+
+        .inputWrap {
+            display: flex;
+            align-items: flex-end;
+            gap: .8rem;
+            background: rgba(255, 255, 255, .03);
+            border: 1px solid rgba(255, 255, 255, .06);
+            border-radius: var(--r-md);
+            padding: .6rem
+        }
+
+        .inputWrap:focus-within {
+            border-color: rgba(90, 169, 255, .4);
+            background: rgba(255, 255, 255, .05)
+        }
+
+        #question {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: var(--text);
+            font-size: 1rem;
+            line-height: 1.5;
+            padding: .5rem;
+            resize: none;
+            min-height: 2.5rem;
+            max-height: 10rem
+        }
+
+        #question::placeholder {
+            color: var(--muted)
+        }
+
+        .actBtn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 2.5rem;
+            height: 2.5rem;
+            border-radius: var(--r-sm);
+            border: none;
+            cursor: pointer
+        }
+
+        .clear {
+            background: rgba(255, 255, 255, .035);
+            color: var(--muted);
+            border: 1px solid rgba(255, 255, 255, .065)
+        }
+
+        .send {
+            background: linear-gradient(135deg, var(--gold), var(--gold2));
+            color: #000;
+            font-weight: 800;
+            font-size: 1.1rem
+        }
+
+        .send:disabled {
+            opacity: .5;
+            cursor: not-allowed
+        }
+
+        .foot {
+            margin: .7rem 0 0;
+            text-align: center;
+            font-size: .76rem;
+            color: rgba(255, 255, 255, .46);
+            line-height: 1.45
+        }
+
+        .modalBg {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, .72);
+            backdrop-filter: blur(10px);
+            z-index: 50;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem
+        }
+
+        .modalBg.open {
+            display: flex
+        }
+
+        .modal {
+            width: min(720px, 100%);
+            max-height: min(86vh, 760px);
+            overflow-y: auto;
+            border-radius: var(--r-lg);
+            border: 1px solid rgba(255, 255, 255, .08);
+            background: rgba(8, 13, 25, .96);
+            box-shadow: 0 2rem 7rem rgba(0, 0, 0, .62)
+        }
+
+        .modalHead {
+            padding: 1.3rem 1.5rem;
+            border-bottom: 1px solid rgba(255, 255, 255, .07);
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 1rem
+        }
+
+        .modalHead h3 {
+            margin: 0;
+            font-size: 1.05rem;
+            color: #fff7dd
+        }
+
+        .modalHead p {
+            margin: .35rem 0 0;
+            color: var(--muted);
+            line-height: 1.5;
+            font-size: .9rem
+        }
+
+        .close {
+            width: 2.2rem;
+            height: 2.2rem;
+            border-radius: .7rem;
+            border: 1px solid rgba(255, 255, 255, .08);
+            background: rgba(255, 255, 255, .04);
+            color: var(--soft);
+            cursor: pointer;
+            font-weight: 800
+        }
+
+        .modalBody {
+            padding: 1.5rem
+        }
+
+        .form {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem
+        }
+
+        .field {
+            display: flex;
+            flex-direction: column;
+            gap: .45rem
+        }
+
+        .field.full {
+            grid-column: 1/-1
+        }
+
+        .field label {
+            color: var(--gold2);
+            font-size: .78rem;
+            text-transform: uppercase;
+            letter-spacing: .09em;
+            font-weight: 800
+        }
+
+        .field input,
+        .field select,
+        .field textarea {
+            width: 100%;
+            border: 1px solid rgba(255, 255, 255, .08);
+            background: rgba(255, 255, 255, .04);
+            color: var(--text);
+            border-radius: var(--r-sm);
+            padding: .8rem;
+            font: inherit
+        }
+
+        .field select option {
+            background: #0b1020;
+            color: #fff
+        }
+
+        .field textarea {
+            min-height: 6rem;
+            resize: vertical;
+            line-height: 1.5
+        }
+
+        .badge {
+            display: inline-flex;
+            margin-top: .9rem;
+            padding: .45rem .65rem;
+            border-radius: 999px;
+            border: 1px solid rgba(212, 175, 55, .18);
+            background: rgba(212, 175, 55, .06);
+            color: #fff4c9;
+            font-size: .78rem;
+            font-weight: 800
+        }
+
+        .modalActions {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+            gap: .8rem;
+            padding: 1.2rem 1.5rem;
+            border-top: 1px solid rgba(255, 255, 255, .07);
+            background: rgba(0, 0, 0, .12)
+        }
+
+        .primary,
+        .outline {
+            border-radius: var(--r-sm);
+            padding: .78rem 1rem;
+            font-weight: 800;
+            cursor: pointer
+        }
+
+        .primary {
+            border: none;
+            background: linear-gradient(135deg, var(--gold), var(--gold2));
+            color: #0b0700
+        }
+
+        .outline {
+            border: 1px solid rgba(255, 255, 255, .1);
+            background: rgba(255, 255, 255, .04);
+            color: var(--soft)
+        }
+
+        .toast {
+            position: fixed;
+            right: 1rem;
+            bottom: 1rem;
+            z-index: 80;
+            max-width: min(420px, calc(100vw - 2rem));
+            display: none;
+            padding: .9rem 1rem;
+            border-radius: var(--r-sm);
+            border: 1px solid rgba(212, 175, 55, .2);
+            background: rgba(8, 13, 25, .96);
+            color: var(--soft);
+            box-shadow: var(--shadow);
+            font-size: .9rem;
+            line-height: 1.45
+        }
+
+        .toast.show {
+            display: block
+        }
+
+        @media(min-width:1200px) {
+            .main {
+                max-height: calc(100vh - 8.5rem)
+            }
+
+            .chat {
+                overflow-y: auto;
+                scroll-behavior: smooth
+            }
+        }
+
+        @media(max-width:760px) {
+            .shell {
+                padding: .9rem;
+                gap: .9rem
+            }
+
+            .header {
+                padding: 1rem
+            }
+
+            .side {
+                padding: 1rem
+            }
+
+            .grid {
+                grid-template-columns: 1fr
+            }
+
+            .card {
+                max-width: 100%
+            }
+
+            .chat {
+                padding: 1rem
+            }
+
+            .inputArea {
+                padding: .8rem;
+                padding-bottom: calc(.8rem + env(safe-area-inset-bottom))
+            }
+
+            .form {
+                grid-template-columns: 1fr
+            }
+
+            .modalActions {
+                justify-content: stretch
+            }
+
+            .primary,
+            .outline {
+                width: 100%
+            }
+        }
+
+        @keyframes pop {
+            from {
+                transform: scale(.96) translateY(.7rem);
+                opacity: 0
+            }
+
+            to {
+                transform: scale(1) translateY(0);
+                opacity: 1
+            }
+        }
+
+        @keyframes dot {
+
+            0%,
+            60%,
+            100% {
+                transform: translateY(0);
+                opacity: .4
+            }
+
+            30% {
+                transform: translateY(-.4rem);
+                opacity: 1
+            }
+        }
+    </style>
 </head>
+
 <body>
-<div class="app-bg"></div>
-<div class="shell">
-<header class="header panel"><div class="brand"><div class="logoBox"><img src="image_2.png" alt="Insignia Doctor Fidei"></div><div><h1>Doctor <span>Fidei</span></h1><p>Asistente del Magisterio Católico</p></div></div><div class="status" id="statusBadge"><span class="dot"></span><span id="statusText">Listo</span></div></header>
-<aside class="sidebar">
-<section class="side panel"><h2 class="ptitle">Guía Doctrinal</h2><p class="intro">Consulta sobre Biblia, Catecismo y Magisterio con rigor, claridad y fidelidad a la enseñanza católica.</p></section>
-<section class="side panel"><h2 class="ptitle">Memoria persistente</h2><p class="intro">Guarda contexto reciente en este navegador para continuar consultas encadenadas.</p><div class="memoryRow"><span>Recordar conversación</span><button class="toggle active" id="memoryToggle" aria-label="Activar o desactivar memoria"></button></div><button class="secondary" id="clearMemoryBtn">Borrar memoria local</button><p class="small">La memoria se guarda solo en este dispositivo mediante localStorage.</p></section>
-<section class="side panel"><h2 class="ptitle">Extensión de respuesta</h2><div class="selector" id="modeSwitch"><div class="opt active" data-mode="breve">Breve</div><div class="opt" data-mode="completo">Completo</div></div></section>
-<section class="side panel"><h2 class="ptitle">Estilo doctrinal</h2><div class="selector tone" id="toneSwitch"><div class="toneOpt active" data-tone="pastoral"><span>Pastoral</span><small>claro</small></div><div class="toneOpt" data-tone="apologetico"><span>Apologético</span><small>debate</small></div><div class="toneOpt" data-tone="academico"><span>Académico</span><small>técnico</small></div></div></section>
-<section class="side panel"><h2 class="ptitle">Consultas frecuentes</h2><div class="grid"><button class="quick quickBtn" data-question="¿La Iglesia Católica adora imágenes?"><span class="icon">✝</span><span>Uso de imágenes</span></button><button class="quick quickBtn" data-question="¿En qué se basa el dogma mariano Madre de Dios?"><span class="icon">⚜</span><span>Dogma mariano</span></button><button class="quick quickBtn" data-question="¿Por qué la Iglesia rechaza la sola Scriptura?"><span class="icon">📖</span><span>Sola Scriptura</span></button><button class="quick quickBtn" data-question="¿Qué son las indulgencias según el Catecismo?"><span class="icon">🗝</span><span>Indulgencias</span></button></div></section>
-<section class="side panel"><h2 class="ptitle">Ranking de preguntas</h2><div class="ranking" id="rankingList"><div class="empty">Todavía no hay preguntas frecuentes. El ranking se irá formando con el uso.</div></div></section>
-<section class="side panel"><h2 class="ptitle">Categorías</h2><div class="catGrid"><button class="cat catBtn" data-question="Explícame una duda sobre María y los dogmas marianos."><span>María y dogmas</span><span>→</span></button><button class="cat catBtn" data-question="Explícame una duda sobre Biblia, Tradición y Magisterio."><span>Biblia y Tradición</span><span>→</span></button><button class="cat catBtn" data-question="Explícame una duda sobre los sacramentos de la Iglesia Católica."><span>Sacramentos</span><span>→</span></button><button class="cat catBtn" data-question="Explícame una duda sobre el Papado, la autoridad de la Iglesia y la sucesión apostólica."><span>Papado e Iglesia</span><span>→</span></button><button class="cat catBtn" data-question="Explícame una duda de moral católica según el Catecismo."><span>Moral católica</span><span>→</span></button></div></section>
-</aside>
-<main class="main panel"><div id="chat" class="chat"><div class="row bot"><div class="card"><div class="content"><b>Bienvenido.</b> Estoy a tu disposición para profundizar en la Doctrina Católica. Podés elegir una consulta frecuente, una categoría o escribir tu propia pregunta.</div></div></div></div><div class="inputArea"><div class="inputWrap"><textarea id="question" placeholder="Escribe tu consulta doctrinal..." rows="1"></textarea><button class="actBtn clear" id="clearBtn" title="Limpiar chat">↺</button><button class="actBtn send" id="sendBtn" title="Enviar consulta">▶</button></div><p class="foot">Doctor Fidei ofrece orientación doctrinal basada en fuentes católicas. Para decisiones pastorales o casos particulares, consulte a un sacerdote o autoridad competente.</p></div></main>
-</div>
-<div class="modalBg" id="presentationModal" aria-hidden="true"><div class="modal"><div class="modalHead"><div><h3>Generar presentación de capacitación</h3><p>Preparará un deck a partir de la última respuesta, con enfoque catequético y estética victoriana-renacentista.</p></div><button class="close" id="closePresentationModal">×</button></div><div class="modalBody"><div class="form"><div class="field full"><label for="deckTitle">Título de la presentación</label><input id="deckTitle" value="Capacitación doctrinal - Doctor Fidei"></div><div class="field"><label for="slideCount">Cantidad de slides</label><select id="slideCount"><option value="6">6 slides</option><option value="8" selected>8 slides</option><option value="10">10 slides</option><option value="12">12 slides</option></select></div><div class="field"><label for="audienceLevel">Nivel de audiencia</label><select id="audienceLevel"><option value="introductorio">Introductorio</option><option value="intermedio" selected>Intermedio</option><option value="avanzado">Avanzado</option></select></div><div class="field"><label for="deckTone">Enfoque</label><select id="deckTone"><option value="catequetico" selected>Catequético</option><option value="apologetico">Apologético</option><option value="academico">Académico</option></select></div><div class="field"><label for="deckStyle">Estilo visual</label><select id="deckStyle"><option value="victoriano-renacentista" selected>Victoriano-renacentista</option><option value="manuscrito-iluminado">Manuscrito iluminado</option><option value="vaticano-sobrio">Vaticano sobrio</option></select></div><div class="field full"><label for="speakerNotes">Notas para el presentador</label><textarea id="speakerNotes" placeholder="Ej: incluir ejemplos para jóvenes, tono pastoral, preparar objeciones protestantes..."></textarea></div></div><div class="badge">✦ Si el endpoint /presentation aún no existe, se copiará el prompt del deck.</div></div><div class="modalActions"><button class="outline" id="copyDeckPromptBtn">Copiar prompt del deck</button><button class="primary" id="generateDeckBtn">Generar presentación</button></div></div></div>
-<div class="toast" id="toast"></div>
-<script>
-document.addEventListener('DOMContentLoaded',()=>{const chat=document.getElementById('chat'),input=document.getElementById('question'),sendBtn=document.getElementById('sendBtn'),clearBtn=document.getElementById('clearBtn'),quickButtons=document.querySelectorAll('.quickBtn'),categoryButtons=document.querySelectorAll('.catBtn'),modeOptions=document.querySelectorAll('.opt'),toneOptions=document.querySelectorAll('.toneOpt'),statusBadge=document.getElementById('statusBadge'),statusText=document.getElementById('statusText'),memoryToggle=document.getElementById('memoryToggle'),clearMemoryBtn=document.getElementById('clearMemoryBtn'),rankingList=document.getElementById('rankingList'),presentationModal=document.getElementById('presentationModal'),closePresentationModal=document.getElementById('closePresentationModal'),generateDeckBtn=document.getElementById('generateDeckBtn'),copyDeckPromptBtn=document.getElementById('copyDeckPromptBtn'),toast=document.getElementById('toast');const K={memoryEnabled:'doctorFidei.memoryEnabled',conversation:'doctorFidei.conversationMemory',ranking:'doctorFidei.questionRanking',lastAnswer:'doctorFidei.lastAnswer',lastQuestion:'doctorFidei.lastQuestion'};let responseMode='breve',responseTone='pastoral',memoryEnabled=localStorage.getItem(K.memoryEnabled)===null?true:localStorage.getItem(K.memoryEnabled)==='true',conversationMemory=safeJson(K.conversation,[]),questionRanking=safeJson(K.ranking,[]),lastBotReply=localStorage.getItem(K.lastAnswer)||'',lastQuestion=localStorage.getItem(K.lastQuestion)||'';function safeJson(k,d){try{return JSON.parse(localStorage.getItem(k)||JSON.stringify(d))}catch{return d}}function toastMsg(m,d=3200){toast.textContent=m;toast.classList.add('show');clearTimeout(toastMsg.t);toastMsg.t=setTimeout(()=>toast.classList.remove('show'),d)}function saveMem(){if(!memoryEnabled)return;conversationMemory=conversationMemory.slice(-12);localStorage.setItem(K.conversation,JSON.stringify(conversationMemory))}function esc(t){const div=document.createElement('div');div.textContent=t||'';return div.innerHTML}function inline(t){return t.replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>').replace(/\*(.*?)\*/g,'<em>$1</em>')}function isSource(line){const l=line.toLowerCase();return ['catecismo','cic','canon','concilio','vaticano','encíclica','constitución','decreto','declaración','exhortación','carta apostólica','juan ','mateo ','lucas ','marcos ','romanos ','corintios ','timoteo ','pedro '].some(x=>l.includes(x))}function fmt(text){const lines=esc(text||'').split('\n');let html='',inList=false,sources=[];const fl=()=>{if(inList){html+='</ul>';inList=false}},fs=()=>{if(sources.length){html+='<div class="sourceBox"><span class="sourceTitle">Fuentes y referencias detectadas</span>'+sources.map(x=>`<div>${inline(x)}</div>`).join('')+'</div>';sources=[]}};for(const raw of lines){const line=raw.trim();if(!line){fl();fs();html+='<br>';continue}if(/^#{1,3}\s+/.test(line)){fl();fs();html+=`<h3>${inline(line.replace(/^#{1,3}\s+/,''))}</h3>`;continue}if(/^\d+\.\s+/.test(line)){fl();fs();html+=`<h3>${inline(line.replace(/^\d+\.\s+/,''))}</h3>`;continue}if(/^[-•]\s+/.test(line)){fs();if(!inList){html+='<ul>';inList=true}html+=`<li>${inline(line.replace(/^[-•]\s+/,''))}</li>`;continue}if(/^&gt;\s?/.test(line)){fl();fs();html+=`<blockquote>${inline(line.replace(/^&gt;\s?/,''))}</blockquote>`;continue}if(isSource(line)&&line.length<190){fl();sources.push(line);continue}fl();fs();html+=`<p style="margin:0 0 .75rem;">${inline(line)}</p>`}fl();fs();return html}function status(s,l){statusBadge.classList.remove('consulting','error');if(s==='consulting')statusBadge.classList.add('consulting');if(s==='error')statusBadge.classList.add('error');statusText.textContent=l}function resize(){input.style.height='auto';const mx=10*parseFloat(getComputedStyle(document.documentElement).fontSize);input.style.height=Math.min(input.scrollHeight,mx)+'px'}function scrollBottom(){if(innerWidth>=1200)chat.scrollTo({top:chat.scrollHeight,behavior:'smooth'});else scrollTo({top:document.body.scrollHeight,behavior:'smooth'})}function addMsg(role,content,opt={}){const row=document.createElement('div');row.className=`row ${role}`;const card=document.createElement('div');card.className='card';const c=document.createElement('div');c.className='content';c.innerHTML=opt.raw?content:fmt(content);card.appendChild(c);if(role==='bot'&&!opt.raw&&opt.actions!==false){const acts=document.createElement('div');acts.className='actions';const cp=btn('Copiar respuesta',async()=>{try{await navigator.clipboard.writeText(content);cp.textContent='Copiado ✓';setTimeout(()=>cp.textContent='Copiar respuesta',1400)}catch{cp.textContent='No se pudo copiar';setTimeout(()=>cp.textContent='Copiar respuesta',1400)}});const db=btn('Versión para debate',()=>sendMessage(`Convierte esta respuesta en un argumento breve, respetuoso y útil para debate apologético. Mantén fidelidad doctrinal y conserva las fuentes principales.\n\nRespuesta a convertir:\n${content}`,{hiddenUserPrompt:'Convertir la última respuesta en versión breve para debate.'}));const dk=btn('Generar presentación',()=>{lastBotReply=content;localStorage.setItem(K.lastAnswer,content);openPresentationModal()});acts.append(cp,db,dk);card.appendChild(acts)}row.appendChild(card);chat.appendChild(row);setTimeout(scrollBottom,50);return row}function btn(t,fn){const b=document.createElement('button');b.className='mini';b.textContent=t;b.addEventListener('click',fn);return b}function typing(){return addMsg('bot','<div class="typing"><div class="dots"><span></span><span></span><span></span></div>Consultando Magisterio...</div>',{raw:true,actions:false})}function prompt(q){const ctx=memoryEnabled?conversationMemory.slice(-8).map(i=>`${i.role==='user'?'Usuario':'Doctor Fidei'}: ${i.content}`).join('\n\n'):'Memoria desactivada. Responder solo la pregunta actual.';return `Modo de extensión solicitado: ${responseMode}.\nEstilo doctrinal solicitado: ${responseTone}.\n\nInstrucción de formato:\nOrganiza la respuesta, cuando corresponda, en secciones claras:\n- Clasificación doctrinal\n- Respuesta breve\n- Fundamento bíblico\n- Catecismo / Magisterio\n- Errores comunes\n- Matices doctrinales\n- Conclusión pastoral\n\nContexto reciente de la conversación:\n${ctx||'Sin contexto previo.'}\n\nPregunta actual:\n${q}`}
-function norm(q){return q.toLowerCase().replace(/[¿?¡!.,;:]/g,'').replace(/\s+/g,' ').trim()}function reg(q){const n=norm(q);if(!n||n.length<8)return;let e=questionRanking.find(i=>i.normalized===n);if(e){e.count++;e.lastAskedAt=Date.now()}else questionRanking.push({question:q,normalized:n,count:1,lastAskedAt:Date.now()});questionRanking.sort((a,b)=>b.count-a.count||b.lastAskedAt-a.lastAskedAt);questionRanking=questionRanking.slice(0,30);localStorage.setItem(K.ranking,JSON.stringify(questionRanking));renderRanking()}function renderRanking(){const top=questionRanking.slice(0,5);if(!top.length){rankingList.innerHTML='<div class="empty">Todavía no hay preguntas frecuentes. El ranking se irá formando con el uso.</div>';return}rankingList.innerHTML='';top.forEach((it,i)=>{const r=document.createElement('button');r.className='rankItem';r.innerHTML=`<span class="rankNum">${i+1}</span><span class="rankQ">${esc(it.question)}</span><span class="rankC">${it.count}×</span>`;r.onclick=()=>{input.value=it.question;resize();input.focus()};rankingList.appendChild(r)})}
-async function sendMessage(prefilled='',options={}){const q=prefilled||input.value.trim(),visible=options.hiddenUserPrompt||q;if(!q)return;addMsg('user',visible,{actions:false});if(!options.hiddenUserPrompt){reg(q);lastQuestion=q;localStorage.setItem(K.lastQuestion,q)}if(memoryEnabled){conversationMemory.push({role:'user',content:options.hiddenUserPrompt?visible:q});saveMem()}input.value='';resize();input.blur();sendBtn.disabled=true;sendBtn.innerHTML='...';status('consulting','Consultando');const t=typing();try{const r=await fetch('/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:prompt(q)})});const data=await r.json();t.remove();if(!r.ok){addMsg('bot',`⚠️ Error: ${data.error||'No se pudo procesar la consulta.'}`,{actions:false});status('error','Error')}else{const reply=data.reply||'No se recibió una respuesta válida.';lastBotReply=reply;localStorage.setItem(K.lastAnswer,reply);if(memoryEnabled){conversationMemory.push({role:'assistant',content:reply});saveMem()}addMsg('bot',reply);status('ready','Listo')}}catch(e){t.remove();addMsg('bot','❌ Error de conexión: No se pudo contactar con el servidor.',{actions:false});status('error','Sin conexión')}finally{sendBtn.disabled=false;sendBtn.innerHTML='▶';if(innerWidth>1024)input.focus()}}
-function openPresentationModal(){if(!lastBotReply){toastMsg('Primero generá una respuesta doctrinal para convertirla en presentación.');return}const ti=document.getElementById('deckTitle');const topic=lastQuestion?lastQuestion.replace(/[¿?]/g,'').trim():'Capacitación doctrinal';ti.value=topic.length>70?topic.slice(0,70)+'…':topic;presentationModal.classList.add('open');presentationModal.setAttribute('aria-hidden','false')}function closePresentation(){presentationModal.classList.remove('open');presentationModal.setAttribute('aria-hidden','true')}function payload(){return{title:document.getElementById('deckTitle').value.trim()||'Capacitación doctrinal - Doctor Fidei',slideCount:Number(document.getElementById('slideCount').value||8),audienceLevel:document.getElementById('audienceLevel').value,deckTone:document.getElementById('deckTone').value,deckStyle:document.getElementById('deckStyle').value,speakerNotes:document.getElementById('speakerNotes').value.trim(),sourceQuestion:lastQuestion,sourceAnswer:lastBotReply,visualInstruction:'Crear slides con estética victoriana-renacentista: marco ornamental, serif elegante, dorado sobrio, textura de pergamino oscuro, diagramas catequéticos y gráficos tipo grabado antiguo cuando corresponda.'}}function deckPrompt(p){return `Genera una presentación de capacitación en PowerPoint basada en la siguiente respuesta doctrinal.\n\nTítulo: ${p.title}\nCantidad de slides: ${p.slideCount}\nNivel de audiencia: ${p.audienceLevel}\nEnfoque: ${p.deckTone}\nEstilo visual: ${p.deckStyle}\nInstrucción visual: ${p.visualInstruction}\nNotas del presentador: ${p.speakerNotes||'Sin notas adicionales.'}\n\nPregunta original:\n${p.sourceQuestion||'No especificada.'}\n\nRespuesta doctrinal base:\n${p.sourceAnswer}\n\nEstructura sugerida:\n1. Portada\n2. La duda doctrinal\n3. Clasificación doctrinal\n4. Fundamento bíblico\n5. Catecismo y Magisterio\n6. Errores comunes\n7. Aplicación pastoral/apologética\n8. Cierre con síntesis y fuentes`}async function generatePresentation(){const p=payload();if(!p.sourceAnswer){toastMsg('No hay una respuesta base para generar la presentación.');return}generateDeckBtn.disabled=true;generateDeckBtn.textContent='Generando...';status('consulting','Generando deck');try{const r=await fetch('/presentation',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(p)});if(!r.ok)throw new Error('Endpoint /presentation no disponible todavía.');const blob=await r.blob();if(!blob||blob.size===0)throw new Error('Archivo vacío');const url=URL.createObjectURL(blob);const a=document.createElement('a');const safe=(p.title.toLowerCase().replace(/[^a-z0-9áéíóúñü]+/gi,'-').replace(/^-|-$/g,'')||'doctor-fidei-presentacion');a.href=url;a.download=`${safe}.pptx`;document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(url);toastMsg('Presentación generada correctamente.');closePresentation();status('ready','Listo')}catch(e){console.error('Error al generar presentación:',e);try{await navigator.clipboard.writeText(deckPrompt(p));toastMsg('El backend /presentation aún no está listo o falló. Copié el prompt del deck al portapapeles.',5200)}catch{toastMsg('El backend /presentation aún no está listo o falló. Copiá manualmente el prompt.',5200)}status('error','Backend pendiente')}finally{generateDeckBtn.disabled=false;generateDeckBtn.textContent='Generar presentación'}}async function copyDeckPrompt(){try{await navigator.clipboard.writeText(deckPrompt(payload()));toastMsg('Prompt de presentación copiado.')}catch{toastMsg('No se pudo copiar el prompt.')}}
-sendBtn.onclick=()=>sendMessage();clearBtn.onclick=()=>{conversationMemory=[];if(memoryEnabled)localStorage.removeItem(K.conversation);chat.innerHTML='<div class="row bot"><div class="card"><div class="content"><b>Chat reiniciado.</b> Estoy a tu disposición para profundizar en la Doctrina Católica. ¿Qué tema deseas consultar hoy?</div></div></div>';input.value='';resize();status('ready','Listo');scrollBottom()};memoryToggle.onclick=()=>{memoryEnabled=!memoryEnabled;localStorage.setItem(K.memoryEnabled,String(memoryEnabled));syncMemory();if(!memoryEnabled){conversationMemory=[];localStorage.removeItem(K.conversation);toastMsg('Memoria local desactivada y limpiada.')}else toastMsg('Memoria local activada.')};function syncMemory(){memoryToggle.classList.toggle('active',memoryEnabled);memoryToggle.setAttribute('aria-pressed',String(memoryEnabled))}clearMemoryBtn.onclick=()=>{conversationMemory=[];localStorage.removeItem(K.conversation);localStorage.removeItem(K.lastAnswer);localStorage.removeItem(K.lastQuestion);lastBotReply='';lastQuestion='';toastMsg('Memoria local borrada.')};input.addEventListener('input',resize);input.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();if(!sendBtn.disabled)sendMessage()}});quickButtons.forEach(b=>b.onclick=()=>sendMessage(b.dataset.question||''));categoryButtons.forEach(b=>b.onclick=()=>{input.value=b.dataset.question||'';resize();input.focus()});modeOptions.forEach(o=>o.onclick=()=>{modeOptions.forEach(x=>x.classList.remove('active'));o.classList.add('active');responseMode=o.dataset.mode||'breve'});toneOptions.forEach(o=>o.onclick=()=>{toneOptions.forEach(x=>x.classList.remove('active'));o.classList.add('active');responseTone=o.dataset.tone||'pastoral'});closePresentationModal.onclick=closePresentation;presentationModal.onclick=e=>{if(e.target===presentationModal)closePresentation()};generateDeckBtn.onclick=generatePresentation;copyDeckPromptBtn.onclick=copyDeckPrompt;document.addEventListener('keydown',e=>{if(e.key==='Escape'&&presentationModal.classList.contains('open'))closePresentation()});resize();syncMemory();renderRanking();window.openPresentationModal=openPresentationModal;window.generatePresentation=generatePresentation;window.copyDeckPrompt=copyDeckPrompt;});
-</script>
+    <div class="app-bg"></div>
+    <div class="shell">
+        <header class="header panel">
+            <div class="brand">
+                <div class="logoBox"><img src="image_2.png" alt="Insignia Doctor Fidei"></div>
+                <div>
+                    <h1>Doctor <span>Fidei</span></h1>
+                    <p>Asistente del Magisterio Católico</p>
+                </div>
+            </div>
+            <div class="status" id="statusBadge"><span class="dot"></span><span id="statusText">Listo</span></div>
+        </header>
+        <aside class="sidebar">
+            <section class="side panel">
+                <h2 class="ptitle">Guía Doctrinal</h2>
+                <p class="intro">Consulta sobre Biblia, Catecismo y Magisterio con rigor, claridad y fidelidad a la
+                    enseñanza católica.</p>
+            </section>
+            <section class="side panel">
+                <h2 class="ptitle">Memoria persistente</h2>
+                <p class="intro">Guarda contexto reciente en este navegador para continuar consultas encadenadas.</p>
+                <div class="memoryRow"><span>Recordar conversación</span><button class="toggle active" id="memoryToggle"
+                        aria-label="Activar o desactivar memoria"></button></div><button class="secondary"
+                    id="clearMemoryBtn">Borrar memoria local</button>
+                <p class="small">La memoria se guarda solo en este dispositivo mediante localStorage.</p>
+            </section>
+            <section class="side panel">
+                <h2 class="ptitle">Extensión de respuesta</h2>
+                <div class="selector" id="modeSwitch">
+                    <div class="opt active" data-mode="breve">Breve</div>
+                    <div class="opt" data-mode="completo">Completo</div>
+                </div>
+            </section>
+            <section class="side panel">
+                <h2 class="ptitle">Estilo doctrinal</h2>
+                <div class="selector tone" id="toneSwitch">
+                    <div class="toneOpt active" data-tone="pastoral"><span>Pastoral</span><small>claro</small></div>
+                    <div class="toneOpt" data-tone="apologetico"><span>Apologético</span><small>debate</small></div>
+                    <div class="toneOpt" data-tone="academico"><span>Académico</span><small>técnico</small></div>
+                </div>
+            </section>
+            <section class="side panel">
+                <h2 class="ptitle">Consultas frecuentes</h2>
+                <div class="grid"><button class="quick quickBtn"
+                        data-question="¿La Iglesia Católica adora imágenes?"><span class="icon">✝</span><span>Uso de
+                            imágenes</span></button><button class="quick quickBtn"
+                        data-question="¿En qué se basa el dogma mariano Madre de Dios?"><span
+                            class="icon">⚜</span><span>Dogma mariano</span></button><button class="quick quickBtn"
+                        data-question="¿Por qué la Iglesia rechaza la sola Scriptura?"><span
+                            class="icon">📖</span><span>Sola Scriptura</span></button><button class="quick quickBtn"
+                        data-question="¿Qué son las indulgencias según el Catecismo?"><span
+                            class="icon">🗝</span><span>Indulgencias</span></button></div>
+            </section>
+            <section class="side panel">
+                <h2 class="ptitle">Ranking de preguntas</h2>
+                <div class="ranking" id="rankingList">
+                    <div class="empty">Todavía no hay preguntas frecuentes. El ranking se irá formando con el uso.</div>
+                </div>
+            </section>
+            <section class="side panel">
+                <h2 class="ptitle">Categorías</h2>
+                <div class="catGrid"><button class="cat catBtn"
+                        data-question="Explícame una duda sobre María y los dogmas marianos."><span>María y
+                            dogmas</span><span>→</span></button><button class="cat catBtn"
+                        data-question="Explícame una duda sobre Biblia, Tradición y Magisterio."><span>Biblia y
+                            Tradición</span><span>→</span></button><button class="cat catBtn"
+                        data-question="Explícame una duda sobre los sacramentos de la Iglesia Católica."><span>Sacramentos</span><span>→</span></button><button
+                        class="cat catBtn"
+                        data-question="Explícame una duda sobre el Papado, la autoridad de la Iglesia y la sucesión apostólica."><span>Papado
+                            e Iglesia</span><span>→</span></button><button class="cat catBtn"
+                        data-question="Explícame una duda de moral católica según el Catecismo."><span>Moral
+                            católica</span><span>→</span></button></div>
+            </section>
+        </aside>
+        <main class="main panel">
+            <div id="chat" class="chat">
+                <div class="row bot">
+                    <div class="card">
+                        <div class="content"><b>Bienvenido.</b> Estoy a tu disposición para profundizar en la Doctrina
+                            Católica. Podés elegir una consulta frecuente, una categoría o escribir tu propia pregunta.
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="inputArea">
+                <div class="inputWrap"><textarea id="question" placeholder="Escribe tu consulta doctrinal..."
+                        rows="1"></textarea><button class="actBtn clear" id="clearBtn"
+                        title="Limpiar chat">↺</button><button class="actBtn send" id="sendBtn"
+                        title="Enviar consulta">▶</button></div>
+                <p class="foot">Doctor Fidei ofrece orientación doctrinal basada en fuentes católicas. Para decisiones
+                    pastorales o casos particulares, consulte a un sacerdote o autoridad competente.</p>
+            </div>
+        </main>
+    </div>
+    <div class="modalBg" id="presentationModal" aria-hidden="true">
+        <div class="modal">
+            <div class="modalHead">
+                <div>
+                    <h3>Generar presentación de capacitación</h3>
+                    <p>Preparará un deck a partir de la última respuesta, con enfoque catequético y estética
+                        victoriana-renacentista.</p>
+                </div><button class="close" id="closePresentationModal">×</button>
+            </div>
+            <div class="modalBody">
+                <div class="form">
+                    <div class="field full"><label for="deckTitle">Título de la presentación</label><input
+                            id="deckTitle" value="Capacitación doctrinal - Doctor Fidei"></div>
+                    <div class="field"><label for="slideCount">Cantidad de slides</label><select id="slideCount">
+                            <option value="6">6 slides</option>
+                            <option value="8" selected>8 slides</option>
+                            <option value="10">10 slides</option>
+                            <option value="12">12 slides</option>
+                        </select></div>
+                    <div class="field"><label for="audienceLevel">Nivel de audiencia</label><select id="audienceLevel">
+                            <option value="introductorio">Introductorio</option>
+                            <option value="intermedio" selected>Intermedio</option>
+                            <option value="avanzado">Avanzado</option>
+                        </select></div>
+                    <div class="field"><label for="deckTone">Enfoque</label><select id="deckTone">
+                            <option value="catequetico" selected>Catequético</option>
+                            <option value="apologetico">Apologético</option>
+                            <option value="academico">Académico</option>
+                        </select></div>
+                    <div class="field"><label for="deckStyle">Estilo visual</label><select id="deckStyle">
+                            <option value="victoriano-renacentista" selected>Victoriano-renacentista</option>
+                            <option value="manuscrito-iluminado">Manuscrito iluminado</option>
+                            <option value="vaticano-sobrio">Vaticano sobrio</option>
+                        </select></div>
+                    <div class="field full"><label for="speakerNotes">Notas para el presentador</label><textarea
+                            id="speakerNotes"
+                            placeholder="Ej: incluir ejemplos para jóvenes, tono pastoral, preparar objeciones protestantes..."></textarea>
+                    </div>
+                </div>
+                <div class="badge">✦ Si el endpoint /presentation aún no existe, se copiará el prompt del deck.</div>
+            </div>
+            <div class="modalActions"><button class="outline" id="copyDeckPromptBtn">Copiar prompt del
+                    deck</button><button class="primary" id="generateDeckBtn">Generar presentación</button></div>
+        </div>
+    </div>
+    <div class="toast" id="toast"></div>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const chat = document.getElementById('chat'), input = document.getElementById('question'), sendBtn = document.getElementById('sendBtn'), clearBtn = document.getElementById('clearBtn'), quickButtons = document.querySelectorAll('.quickBtn'), categoryButtons = document.querySelectorAll('.catBtn'), modeOptions = document.querySelectorAll('.opt'), toneOptions = document.querySelectorAll('.toneOpt'), statusBadge = document.getElementById('statusBadge'), statusText = document.getElementById('statusText'), memoryToggle = document.getElementById('memoryToggle'), clearMemoryBtn = document.getElementById('clearMemoryBtn'), rankingList = document.getElementById('rankingList'), presentationModal = document.getElementById('presentationModal'), closePresentationModal = document.getElementById('closePresentationModal'), generateDeckBtn = document.getElementById('generateDeckBtn'), copyDeckPromptBtn = document.getElementById('copyDeckPromptBtn'), toast = document.getElementById('toast'); const K = { memoryEnabled: 'doctorFidei.memoryEnabled', conversation: 'doctorFidei.conversationMemory', ranking: 'doctorFidei.questionRanking', lastAnswer: 'doctorFidei.lastAnswer', lastQuestion: 'doctorFidei.lastQuestion' }; let responseMode = 'breve', responseTone = 'pastoral', memoryEnabled = localStorage.getItem(K.memoryEnabled) === null ? true : localStorage.getItem(K.memoryEnabled) === 'true', conversationMemory = safeJson(K.conversation, []), questionRanking = safeJson(K.ranking, []), lastBotReply = localStorage.getItem(K.lastAnswer) || '', lastQuestion = localStorage.getItem(K.lastQuestion) || ''; function safeJson(k, d) { try { return JSON.parse(localStorage.getItem(k) || JSON.stringify(d)) } catch { return d } } function toastMsg(m, d = 3200) { toast.textContent = m; toast.classList.add('show'); clearTimeout(toastMsg.t); toastMsg.t = setTimeout(() => toast.classList.remove('show'), d) } function saveMem() { if (!memoryEnabled) return; conversationMemory = conversationMemory.slice(-12); localStorage.setItem(K.conversation, JSON.stringify(conversationMemory)) } function esc(t) { const div = document.createElement('div'); div.textContent = t || ''; return div.innerHTML } function inline(t) { return t.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\*(.*?)\*/g, '<em>$1</em>') } function isSource(line) { const l = line.toLowerCase(); return ['catecismo', 'cic', 'canon', 'concilio', 'vaticano', 'encíclica', 'constitución', 'decreto', 'declaración', 'exhortación', 'carta apostólica', 'juan ', 'mateo ', 'lucas ', 'marcos ', 'romanos ', 'corintios ', 'timoteo ', 'pedro '].some(x => l.includes(x)) } function fmt(text) { const lines = esc(text || '').split('\n'); let html = '', inList = false, sources = []; const fl = () => { if (inList) { html += '</ul>'; inList = false } }, fs = () => { if (sources.length) { html += '<div class="sourceBox"><span class="sourceTitle">Fuentes y referencias detectadas</span>' + sources.map(x => `<div>${inline(x)}</div>`).join('') + '</div>'; sources = [] } }; for (const raw of lines) { const line = raw.trim(); if (!line) { fl(); fs(); html += '<br>'; continue } if (/^#{1,3}\s+/.test(line)) { fl(); fs(); html += `<h3>${inline(line.replace(/^#{1,3}\s+/, ''))}</h3>`; continue } if (/^\d+\.\s+/.test(line)) { fl(); fs(); html += `<h3>${inline(line.replace(/^\d+\.\s+/, ''))}</h3>`; continue } if (/^[-•]\s+/.test(line)) { fs(); if (!inList) { html += '<ul>'; inList = true } html += `<li>${inline(line.replace(/^[-•]\s+/, ''))}</li>`; continue } if (/^&gt;\s?/.test(line)) { fl(); fs(); html += `<blockquote>${inline(line.replace(/^&gt;\s?/, ''))}</blockquote>`; continue } if (isSource(line) && line.length < 190) { fl(); sources.push(line); continue } fl(); fs(); html += `<p style="margin:0 0 .75rem;">${inline(line)}</p>` } fl(); fs(); return html } function status(s, l) { statusBadge.classList.remove('consulting', 'error'); if (s === 'consulting') statusBadge.classList.add('consulting'); if (s === 'error') statusBadge.classList.add('error'); statusText.textContent = l } function resize() { input.style.height = 'auto'; const mx = 10 * parseFloat(getComputedStyle(document.documentElement).fontSize); input.style.height = Math.min(input.scrollHeight, mx) + 'px' } function scrollBottom() { if (innerWidth >= 1200) chat.scrollTo({ top: chat.scrollHeight, behavior: 'smooth' }); else scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' }) } function addMsg(role, content, opt = {}) { const row = document.createElement('div'); row.className = `row ${role}`; const card = document.createElement('div'); card.className = 'card'; const c = document.createElement('div'); c.className = 'content'; c.innerHTML = opt.raw ? content : fmt(content); card.appendChild(c); if (role === 'bot' && !opt.raw && opt.actions !== false) { const acts = document.createElement('div'); acts.className = 'actions'; const cp = btn('Copiar respuesta', async () => { try { await navigator.clipboard.writeText(content); cp.textContent = 'Copiado ✓'; setTimeout(() => cp.textContent = 'Copiar respuesta', 1400) } catch { cp.textContent = 'No se pudo copiar'; setTimeout(() => cp.textContent = 'Copiar respuesta', 1400) } }); const db = btn('Versión para debate', () => sendMessage(`Convierte esta respuesta en un argumento breve, respetuoso y útil para debate apologético. Mantén fidelidad doctrinal y conserva las fuentes principales.\n\nRespuesta a convertir:\n${content}`, { hiddenUserPrompt: 'Convertir la última respuesta en versión breve para debate.' })); const dk = btn('Generar presentación', () => { lastBotReply = content; localStorage.setItem(K.lastAnswer, content); openPresentationModal() }); acts.append(cp, db, dk); card.appendChild(acts) } row.appendChild(card); chat.appendChild(row); setTimeout(scrollBottom, 50); return row } function btn(t, fn) { const b = document.createElement('button'); b.className = 'mini'; b.textContent = t; b.addEventListener('click', fn); return b } function typing() { return addMsg('bot', '<div class="typing"><div class="dots"><span></span><span></span><span></span></div>Consultando Magisterio...</div>', { raw: true, actions: false }) } function prompt(q) { const ctx = memoryEnabled ? conversationMemory.slice(-8).map(i => `${i.role === 'user' ? 'Usuario' : 'Doctor Fidei'}: ${i.content}`).join('\n\n') : 'Memoria desactivada. Responder solo la pregunta actual.'; return `Modo de extensión solicitado: ${responseMode}.\nEstilo doctrinal solicitado: ${responseTone}.\n\nInstrucción de formato:\nOrganiza la respuesta, cuando corresponda, en secciones claras:\n- Clasificación doctrinal\n- Respuesta breve\n- Fundamento bíblico\n- Catecismo / Magisterio\n- Errores comunes\n- Matices doctrinales\n- Conclusión pastoral\n\nContexto reciente de la conversación:\n${ctx || 'Sin contexto previo.'}\n\nPregunta actual:\n${q}` }
+            function norm(q) { return q.toLowerCase().replace(/[¿?¡!.,;:]/g, '').replace(/\s+/g, ' ').trim() } function reg(q) { const n = norm(q); if (!n || n.length < 8) return; let e = questionRanking.find(i => i.normalized === n); if (e) { e.count++; e.lastAskedAt = Date.now() } else questionRanking.push({ question: q, normalized: n, count: 1, lastAskedAt: Date.now() }); questionRanking.sort((a, b) => b.count - a.count || b.lastAskedAt - a.lastAskedAt); questionRanking = questionRanking.slice(0, 30); localStorage.setItem(K.ranking, JSON.stringify(questionRanking)); renderRanking() } function renderRanking() { const top = questionRanking.slice(0, 5); if (!top.length) { rankingList.innerHTML = '<div class="empty">Todavía no hay preguntas frecuentes. El ranking se irá formando con el uso.</div>'; return } rankingList.innerHTML = ''; top.forEach((it, i) => { const r = document.createElement('button'); r.className = 'rankItem'; r.innerHTML = `<span class="rankNum">${i + 1}</span><span class="rankQ">${esc(it.question)}</span><span class="rankC">${it.count}×</span>`; r.onclick = () => { input.value = it.question; resize(); input.focus() }; rankingList.appendChild(r) }) }
+            async function sendMessage(prefilled = '', options = {}) { const q = prefilled || input.value.trim(), visible = options.hiddenUserPrompt || q; if (!q) return; addMsg('user', visible, { actions: false }); if (!options.hiddenUserPrompt) { reg(q); lastQuestion = q; localStorage.setItem(K.lastQuestion, q) } if (memoryEnabled) { conversationMemory.push({ role: 'user', content: options.hiddenUserPrompt ? visible : q }); saveMem() } input.value = ''; resize(); input.blur(); sendBtn.disabled = true; sendBtn.innerHTML = '...'; status('consulting', 'Consultando'); const t = typing(); try { const r = await fetch('/chat', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ message: prompt(q) }) }); const data = await r.json(); t.remove(); if (!r.ok) { addMsg('bot', `⚠️ Error: ${data.error || 'No se pudo procesar la consulta.'}`, { actions: false }); status('error', 'Error') } else { const reply = data.reply || 'No se recibió una respuesta válida.'; lastBotReply = reply; localStorage.setItem(K.lastAnswer, reply); if (memoryEnabled) { conversationMemory.push({ role: 'assistant', content: reply }); saveMem() } addMsg('bot', reply); status('ready', 'Listo') } } catch (e) { t.remove(); addMsg('bot', '❌ Error de conexión: No se pudo contactar con el servidor.', { actions: false }); status('error', 'Sin conexión') } finally { sendBtn.disabled = false; sendBtn.innerHTML = '▶'; if (innerWidth > 1024) input.focus() } }
+            function openPresentationModal() { if (!lastBotReply) { toastMsg('Primero generá una respuesta doctrinal para convertirla en presentación.'); return } const ti = document.getElementById('deckTitle'); const topic = lastQuestion ? lastQuestion.replace(/[¿?]/g, '').trim() : 'Capacitación doctrinal'; ti.value = topic.length > 70 ? topic.slice(0, 70) + '…' : topic; presentationModal.classList.add('open'); presentationModal.setAttribute('aria-hidden', 'false') } function closePresentation() { presentationModal.classList.remove('open'); presentationModal.setAttribute('aria-hidden', 'true') } function payload() { return { title: document.getElementById('deckTitle').value.trim() || 'Capacitación doctrinal - Doctor Fidei', slideCount: Number(document.getElementById('slideCount').value || 8), audienceLevel: document.getElementById('audienceLevel').value, deckTone: document.getElementById('deckTone').value, deckStyle: document.getElementById('deckStyle').value, speakerNotes: document.getElementById('speakerNotes').value.trim(), sourceQuestion: lastQuestion, sourceAnswer: lastBotReply, visualInstruction: 'Crear slides con estética victoriana-renacentista: marco ornamental, serif elegante, dorado sobrio, textura de pergamino oscuro, diagramas catequéticos y gráficos tipo grabado antiguo cuando corresponda.' } } function deckPrompt(p) { return `Genera una presentación de capacitación en PowerPoint basada en la siguiente respuesta doctrinal.\n\nTítulo: ${p.title}\nCantidad de slides: ${p.slideCount}\nNivel de audiencia: ${p.audienceLevel}\nEnfoque: ${p.deckTone}\nEstilo visual: ${p.deckStyle}\nInstrucción visual: ${p.visualInstruction}\nNotas del presentador: ${p.speakerNotes || 'Sin notas adicionales.'}\n\nPregunta original:\n${p.sourceQuestion || 'No especificada.'}\n\nRespuesta doctrinal base:\n${p.sourceAnswer}\n\nEstructura sugerida:\n1. Portada\n2. La duda doctrinal\n3. Clasificación doctrinal\n4. Fundamento bíblico\n5. Catecismo y Magisterio\n6. Errores comunes\n7. Aplicación pastoral/apologética\n8. Cierre con síntesis y fuentes` } async function generatePresentation() { const p = payload(); if (!p.sourceAnswer) { toastMsg('No hay una respuesta base para generar la presentación.'); return } generateDeckBtn.disabled = true; generateDeckBtn.textContent = 'Generando...'; status('consulting', 'Generando deck'); try { const r = await fetch('/presentation', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(p) }); if (!r.ok) throw new Error('Endpoint /presentation no disponible todavía.'); const blob = await r.blob(); if (!blob || blob.size === 0) throw new Error('Archivo vacío'); const url = URL.createObjectURL(blob); const a = document.createElement('a'); const safe = (p.title.toLowerCase().replace(/[^a-z0-9áéíóúñü]+/gi, '-').replace(/^-|-$/g, '') || 'doctor-fidei-presentacion'); a.href = url; a.download = `${safe}.pptx`; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url); toastMsg('Presentación generada correctamente.'); closePresentation(); status('ready', 'Listo') } catch (e) { console.error('Error al generar presentación:', e); try { await navigator.clipboard.writeText(deckPrompt(p)); toastMsg('El backend /presentation aún no está listo o falló. Copié el prompt del deck al portapapeles.', 5200) } catch { toastMsg('El backend /presentation aún no está listo o falló. Copiá manualmente el prompt.', 5200) } status('error', 'Backend pendiente') } finally { generateDeckBtn.disabled = false; generateDeckBtn.textContent = 'Generar presentación' } } async function copyDeckPrompt() { try { await navigator.clipboard.writeText(deckPrompt(payload())); toastMsg('Prompt de presentación copiado.') } catch { toastMsg('No se pudo copiar el prompt.') } }
+            sendBtn.onclick = () => sendMessage(); clearBtn.onclick = () => { conversationMemory = []; if (memoryEnabled) localStorage.removeItem(K.conversation); chat.innerHTML = '<div class="row bot"><div class="card"><div class="content"><b>Chat reiniciado.</b> Estoy a tu disposición para profundizar en la Doctrina Católica. ¿Qué tema deseas consultar hoy?</div></div></div>'; input.value = ''; resize(); status('ready', 'Listo'); scrollBottom() }; memoryToggle.onclick = () => { memoryEnabled = !memoryEnabled; localStorage.setItem(K.memoryEnabled, String(memoryEnabled)); syncMemory(); if (!memoryEnabled) { conversationMemory = []; localStorage.removeItem(K.conversation); toastMsg('Memoria local desactivada y limpiada.') } else toastMsg('Memoria local activada.') }; function syncMemory() { memoryToggle.classList.toggle('active', memoryEnabled); memoryToggle.setAttribute('aria-pressed', String(memoryEnabled)) } clearMemoryBtn.onclick = () => { conversationMemory = []; localStorage.removeItem(K.conversation); localStorage.removeItem(K.lastAnswer); localStorage.removeItem(K.lastQuestion); lastBotReply = ''; lastQuestion = ''; toastMsg('Memoria local borrada.') }; input.addEventListener('input', resize); input.addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); if (!sendBtn.disabled) sendMessage() } }); quickButtons.forEach(b => b.onclick = () => sendMessage(b.dataset.question || '')); categoryButtons.forEach(b => b.onclick = () => { input.value = b.dataset.question || ''; resize(); input.focus() }); modeOptions.forEach(o => o.onclick = () => { modeOptions.forEach(x => x.classList.remove('active')); o.classList.add('active'); responseMode = o.dataset.mode || 'breve' }); toneOptions.forEach(o => o.onclick = () => { toneOptions.forEach(x => x.classList.remove('active')); o.classList.add('active'); responseTone = o.dataset.tone || 'pastoral' }); closePresentationModal.onclick = closePresentation; presentationModal.onclick = e => { if (e.target === presentationModal) closePresentation() }; generateDeckBtn.onclick = generatePresentation; copyDeckPromptBtn.onclick = copyDeckPrompt; document.addEventListener('keydown', e => { if (e.key === 'Escape' && presentationModal.classList.contains('open')) closePresentation() }); resize(); syncMemory(); renderRanking(); window.openPresentationModal = openPresentationModal; window.generatePresentation = generatePresentation; window.copyDeckPrompt = copyDeckPrompt;
+        });
+    </script>
 </body>
+
 </html>
