@@ -3,11 +3,9 @@ import cors from "cors";
 import dotenv from "dotenv";
 import OpenAI from "openai";
 import { GoogleGenerativeAI } from "@google/generative-ai";
-//import chromium from "@sparticuz/chromium-min";
-//import puppeteer from "puppeteer-core";
 import path from "path";
 import { fileURLToPath } from "url";
-import html_to_pdf from "html-pdf-node";
+import PDFDocument from 'pdfkit';
 
 dotenv.config();
 
@@ -136,20 +134,19 @@ app.post("/chat", async (req, res) => {
   }
 });
 
-// ================= PDF (GEMINI 3.0 + HTML-PDF-NODE) =================
+// ================= PDF (GEMINI 2.0 + PDFKIT) =================
 app.post("/presentation", async (req, res) => {
   try {
     const { title, slideCount, sourceAnswer } = req.body;
 
-    // 1. Gemini estructura el contenido (Sin el campo conflictivo)
+    // 1. Gemini estructura el contenido (2.0 Flash es el más estable en v1)
     const model = genAI.getGenerativeModel({
-      model: "gemini-3-flash-preview",
-    }, { apiVersion: 'v1beta' });
+      model: "gemini-2.0-flash",
+    }, { apiVersion: 'v1' });
 
-    // Reforzamos el prompt para que el JSON venga limpio
     const prompt = `Actúa como diseñador editorial católico. Organiza el siguiente contenido en exactamente ${slideCount} secciones para un documento PDF.
     Responde ÚNICAMENTE en formato JSON plano: { "pages": [{ "header": "Título", "body": "Contenido" }] }.
-    No incluyas explicaciones ni bloques de código markdown.
+    No incluyas bloques de código markdown.
     Contenido: ${sourceAnswer}`;
 
     const aiResult = await model.generateContent({
@@ -157,94 +154,66 @@ app.post("/presentation", async (req, res) => {
         role: 'user',
         parts: [{ text: prompt }]
       }]
-      // ELIMINAMOS generationConfig para que no de Error 400
     });
 
-    // Limpieza de seguridad por si la IA usa bloques de código
     let textResponse = aiResult.response.text();
     textResponse = textResponse.replace(/```json|```/g, "").trim();
     const data = JSON.parse(textResponse);
 
-    // 2. Plantilla HTML con estilo Doctor Fidei
-    const htmlContent = `
-    <html>
-      <head>
-        <meta charset="UTF-8">
-        <style>
-          body { 
-            background: #03050a; 
-            color: #f5f7fb; 
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-            margin: 0; 
-            padding: 0;
-          }
-          .page { 
-            width: 210mm; 
-            height: 297mm; 
-            padding: 25mm; 
-            border: 15px solid #d4af37; 
-            box-sizing: border-box; 
-            position: relative;
-            page-break-after: always;
-            display: flex;
-            flex-direction: column;
-          }
-          h1 { 
-            color: #d4af37; 
-            text-align: center; 
-            font-size: 2.2rem; 
-            border-bottom: 2px solid #d4af37; 
-            padding-bottom: 10px; 
-            margin-top: 0;
-          }
-          .content { 
-            font-size: 1.1rem; 
-            line-height: 1.6; 
-            text-align: justify; 
-            margin-top: 20px; 
-            flex-grow: 1;
-          }
-          .footer { 
-            text-align: center; 
-            color: #98a4c7; 
-            border-top: 1px solid rgba(212,175,55,0.2); 
-            padding-top: 10px;
-            font-size: 0.9rem;
-          }
-        </style>
-      </head>
-      <body>
-        ${data.pages.map(p => `
-          <div class="page">
-            <h1>${p.header}</h1>
-            <div class="content">${p.body.replace(/\n/g, '<br>')}</div>
-            <div class="footer">Doctor Fidei — ${title}</div>
-          </div>
-        `).join('')}
-      </body>
-    </html>`;
+    // 2. Configuración de PDFKit (Sin dependencias de Chrome)
+    const doc = new PDFDocument({
+      size: 'A4',
+      margin: 50,
+      info: { Title: title, Author: 'Doctor Fidei' }
+    });
 
-    // 3. Generar PDF usando html-pdf-node (Sin navegador externo)
-    const options = {
-      format: 'A4',
-      printBackground: true,
-      margin: { top: 0, right: 0, bottom: 0, left: 0 }
-    };
+    let buffers = [];
+    doc.on('data', buffers.push.bind(buffers));
+    doc.on('end', () => {
+      const pdfBuffer = Buffer.concat(buffers);
+      res.contentType("application/pdf");
+      res.send(pdfBuffer);
+    });
 
-    const file = { content: htmlContent };
+    // 3. Dibujar el contenido estilo "Doctor Fidei"
+    data.pages.forEach((p, index) => {
+      if (index > 0) doc.addPage();
 
-    const pdfBuffer = await html_to_pdf.generatePdf(file, options);
+      // Fondo Oscuro
+      doc.rect(0, 0, doc.page.width, doc.page.height).fill('#03050a');
 
-    // 4. Enviar respuesta
-    res.contentType("application/pdf");
-    res.send(pdfBuffer);
+      // Título Dorado
+      doc.fillColor('#d4af37')
+        .fontSize(24)
+        .text(p.header.toUpperCase(), { align: 'center' });
+
+      doc.moveDown(0.5);
+
+      // Línea divisoria
+      doc.moveTo(100, doc.y).lineTo(500, doc.y).strokeColor('#d4af37').stroke();
+
+      doc.moveDown(1.5);
+
+      // Cuerpo de texto
+      doc.fillColor('#f5f7fb')
+        .fontSize(13)
+        .text(p.body, {
+          align: 'justify',
+          lineGap: 4,
+          paragraphGap: 10
+        });
+
+      // Footer
+      doc.fontSize(10)
+        .fillColor('#98a4c7')
+        .text(`Doctor Fidei — Material de Formación — ${title}`, 50, 750, { align: 'center' });
+    });
+
+    doc.end();
 
   } catch (error) {
     console.error("Error detallado en PDF:", error);
-    res.status(500).json({
-      error: "Error al generar el documento",
-      details: error.message
-    });
+    res.status(500).json({ error: "Error de generación", details: error.message });
   }
 });
 
@@ -252,4 +221,4 @@ app.get("*", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "index.html"));
 });
 
-app.listen(port, () => console.log(`Servidor Híbrido corriendo en puerto ${port}`));
+app.listen(port, () => console.log(`Servidor Doctor Fidei en puerto ${port}`));
