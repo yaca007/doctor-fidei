@@ -140,7 +140,7 @@ app.post("/presentation", async (req, res) => {
 
     // 1. Modelos: Usamos 2.0 Flash para TODO (Texto e Imagen)
     // Este modelo es el que habilitaste en la Agent Platform.
-    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+    const model = genAI.getGenerativeModel({ model: "imagen-3.0-generate-001" });
 
     const structuringPrompt = `Actúa como diseñador editorial de arte sacro. Divide este contenido en exactamente ${slideCount} páginas.
     Para cada página, define un "image_prompt" místico que describa una escena para generar una imagen.
