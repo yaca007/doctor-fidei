@@ -164,7 +164,7 @@ app.post("/presentation", async (req, res) => {
     doc.on('data', buffers.push.bind(buffers));
 
     // Artista Sacro: Nano Banana 2 (Gemini 3 Flash Image)
-    const imageModel = genAI.getGenerativeModel({ model: "gemini-3-flash-image" });
+    const imageModel = genAI.getGenerativeModel({ model: "imagen-3.0-generate-001" });
 
     // 3. Procesamiento de Páginas
     for (const [index, p] of data.pages.entries()) {
