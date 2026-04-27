@@ -3,10 +3,11 @@ import cors from "cors";
 import dotenv from "dotenv";
 import OpenAI from "openai";
 import { GoogleGenerativeAI } from "@google/generative-ai";
-import chromium from "@sparticuz/chromium-min";
-import puppeteer from "puppeteer-core";
+//import chromium from "@sparticuz/chromium-min";
+//import puppeteer from "puppeteer-core";
 import path from "path";
 import { fileURLToPath } from "url";
+import html_to_pdf from "html-pdf-node";
 
 dotenv.config();
 
@@ -135,18 +136,15 @@ app.post("/chat", async (req, res) => {
   }
 });
 
-// ================= PDF (GEMINI + PUPPETEER CORE) =================
+// ================= PDF (GEMINI 3.0 + HTML-PDF-NODE) =================
 app.post("/presentation", async (req, res) => {
-  let browser = null;
-
   try {
     const { title, slideCount, sourceAnswer } = req.body;
 
-    // 1. Gemini estructura el contenido
+    // 1. Gemini estructura el contenido (Usando 3.0 Flash Preview como recomendó Google)
     const model = genAI.getGenerativeModel({
       model: "gemini-3-flash-preview",
-
-    });
+    }, { apiVersion: 'v1' });
 
     const prompt = `Actúa como diseñador editorial católico. Organiza el siguiente contenido en exactamente ${slideCount} secciones para un documento PDF.
     Responde ÚNICAMENTE en JSON: { "pages": [{ "header": "Título", "body": "Contenido" }] }. 
@@ -159,38 +157,52 @@ app.post("/presentation", async (req, res) => {
 
     const data = JSON.parse(aiResult.response.text());
 
-    // 2. Lanzar Puppeteer optimizado para Vercel
-    const isProduction = process.env.NODE_ENV === 'production';
-
-    browser = await puppeteer.launch({
-      args: [
-        ...chromium.args,
-        "--no-sandbox",
-        "--disable-setuid-sandbox",
-        "--disable-dev-shm-usage",
-        "--disable-gpu",
-      ],
-      defaultViewport: chromium.defaultViewport,
-      executablePath: await chromium.executablePath(
-        "https://github.com/Sparticuz/chromium/releases/download/v123.0.1/chromium-v123.0.1-pack.tar"
-      ),
-      headless: chromium.headless,
-      ignoreHTTPSErrors: true,
-    });
-
-    const page = await browser.newPage();
-
-    // Plantilla HTML con estilo Doctor Fidei
+    // 2. Plantilla HTML con estilo Doctor Fidei
     const htmlContent = `
     <html>
       <head>
+        <meta charset="UTF-8">
         <style>
-          @page { size: A4; margin: 0; }
-          body { background: #03050a; color: #f5f7fb; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; }
-          .page { width: 210mm; height: 297mm; padding: 25mm; border: 15px solid #d4af37; page-break-after: always; box-sizing: border-box; position: relative; }
-          h1 { color: #d4af37; text-align: center; font-size: 2.2rem; border-bottom: 2px solid #d4af37; padding-bottom: 10px; }
-          .content { font-size: 1.1rem; line-height: 1.6; text-align: justify; margin-top: 20px; }
-          .footer { position: absolute; bottom: 15mm; width: calc(100% - 50mm); text-align: center; color: #98a4c7; border-top: 1px solid rgba(212,175,55,0.2); padding-top: 5px; }
+          body { 
+            background: #03050a; 
+            color: #f5f7fb; 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            margin: 0; 
+            padding: 0;
+          }
+          .page { 
+            width: 210mm; 
+            height: 297mm; 
+            padding: 25mm; 
+            border: 15px solid #d4af37; 
+            box-sizing: border-box; 
+            position: relative;
+            page-break-after: always;
+            display: flex;
+            flex-direction: column;
+          }
+          h1 { 
+            color: #d4af37; 
+            text-align: center; 
+            font-size: 2.2rem; 
+            border-bottom: 2px solid #d4af37; 
+            padding-bottom: 10px; 
+            margin-top: 0;
+          }
+          .content { 
+            font-size: 1.1rem; 
+            line-height: 1.6; 
+            text-align: justify; 
+            margin-top: 20px; 
+            flex-grow: 1;
+          }
+          .footer { 
+            text-align: center; 
+            color: #98a4c7; 
+            border-top: 1px solid rgba(212,175,55,0.2); 
+            padding-top: 10px;
+            font-size: 0.9rem;
+          }
         </style>
       </head>
       <body>
@@ -204,17 +216,27 @@ app.post("/presentation", async (req, res) => {
       </body>
     </html>`;
 
-    await page.setContent(htmlContent, { waitUntil: 'networkidle0' });
-    const pdfBuffer = await page.pdf({ format: 'A4', printBackground: true });
+    // 3. Generar PDF usando html-pdf-node (Sin navegador externo)
+    const options = { 
+      format: 'A4', 
+      printBackground: true,
+      margin: { top: 0, right: 0, bottom: 0, left: 0 }
+    };
+    
+    const file = { content: htmlContent };
 
-    await browser.close();
+    const pdfBuffer = await html_to_pdf.generatePdf(file, options);
+
+    // 4. Enviar respuesta
     res.contentType("application/pdf");
     res.send(pdfBuffer);
 
   } catch (error) {
     console.error("Error detallado en PDF:", error);
-    if (browser) await browser.close();
-    res.status(500).json({ error: error.message });
+    res.status(500).json({ 
+      error: "Error al generar el documento", 
+      details: error.message 
+    });
   }
 });
 
