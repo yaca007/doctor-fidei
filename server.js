@@ -139,12 +139,6 @@ app.post("/chat", async (req, res) => {
 app.post("/presentation", async (req, res) => {
   let browser = null;
 
-  const listModels = async () => {
-  const models = await genAI.listModels();
-  console.log("Modelos disponibles:", JSON.stringify(models, null, 2));
-  };
-  listModels();
-
   try {
     const { title, slideCount, sourceAnswer } = req.body;
 
