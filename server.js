@@ -163,11 +163,11 @@ app.post("/presentation", async (req, res) => {
     const isProduction = process.env.NODE_ENV === 'production';
 
     browser = await puppeteer.launch({
-      args: isProduction ? chromium.args : [],
+      args: chromium.args,
       defaultViewport: chromium.defaultViewport,
-      executablePath: isProduction 
-        ? await chromium.executablePath('https://github.com/Sparticuz/chromium/releases/download/v131.0.0/chromium-v131.0.0-pack.tar') // URL de un pack compatible
-        : '/usr/bin/google-chrome', // O la ruta de tu Chrome local para pruebas
+      executablePath: await chromium.executablePath(
+        "https://github.com/Sparticuz/chromium/releases/download/v123.0.1/chromium-v123.0.1-pack.tar"
+      ),
       headless: chromium.headless,
     });
 
