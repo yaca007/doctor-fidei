@@ -144,7 +144,7 @@ app.post("/presentation", async (req, res) => {
     // 1. Gemini estructura el contenido (Sin el campo conflictivo)
     const model = genAI.getGenerativeModel({
       model: "gemini-3-flash-preview",
-    }, { apiVersion: 'v1' });
+    }, { apiVersion: 'v1beta' });
 
     // Reforzamos el prompt para que el JSON venga limpio
     const prompt = `Actúa como diseñador editorial católico. Organiza el siguiente contenido en exactamente ${slideCount} secciones para un documento PDF.
