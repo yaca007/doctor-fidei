@@ -122,7 +122,7 @@ app.post("/chat", async (req, res) => {
   try {
     const { message } = req.body;
     const response = await openai.chat.completions.create({
-      model: "gpt-4-turbo", 
+      model: "gpt-4-turbo",
       messages: [
         { role: "system", content: SYSTEM_PROMPT },
         { role: "user", content: message }
@@ -138,13 +138,20 @@ app.post("/chat", async (req, res) => {
 // ================= PDF (GEMINI + PUPPETEER CORE) =================
 app.post("/presentation", async (req, res) => {
   let browser = null;
+
+  const listModels = async () => {
+  const models = await genAI.listModels();
+  console.log("Modelos disponibles:", JSON.stringify(models, null, 2));
+  };
+  listModels();
+
   try {
     const { title, slideCount, sourceAnswer } = req.body;
 
     // 1. Gemini estructura el contenido
-    const model = genAI.getGenerativeModel({ 
+    const model = genAI.getGenerativeModel({
       model: "gemini-1.5-flash",
-      
+
     });
 
     const prompt = `Actúa como diseñador editorial católico. Organiza el siguiente contenido en exactamente ${slideCount} secciones para un documento PDF.
@@ -155,7 +162,7 @@ app.post("/presentation", async (req, res) => {
       contents: [{ role: 'user', parts: [{ text: prompt }] }],
       generationConfig: { responseMimeType: "application/json" }
     });
-    
+
     const data = JSON.parse(aiResult.response.text());
 
     // 2. Lanzar Puppeteer optimizado para Vercel
@@ -168,7 +175,7 @@ app.post("/presentation", async (req, res) => {
     });
 
     const page = await browser.newPage();
-    
+
     // Plantilla HTML con estilo Doctor Fidei
     const htmlContent = `
     <html>
