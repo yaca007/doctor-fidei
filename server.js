@@ -160,12 +160,15 @@ app.post("/presentation", async (req, res) => {
     const data = JSON.parse(aiResult.response.text());
 
     // 2. Lanzar Puppeteer optimizado para Vercel
+    const isProduction = process.env.NODE_ENV === 'production';
+
     browser = await puppeteer.launch({
-      args: chromium.args,
+      args: isProduction ? chromium.args : [],
       defaultViewport: chromium.defaultViewport,
-      executablePath: await chromium.executablePath('https://github.com/Sparticuz/chromium/releases/download/v123.0.1/chromium-v123.0.1-pack.tar'),
+      executablePath: isProduction 
+        ? await chromium.executablePath('https://github.com/Sparticuz/chromium/releases/download/v131.0.0/chromium-v131.0.0-pack.tar') // URL de un pack compatible
+        : '/usr/bin/google-chrome', // O la ruta de tu Chrome local para pruebas
       headless: chromium.headless,
-      ignoreHTTPSErrors: true,
     });
 
     const page = await browser.newPage();
