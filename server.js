@@ -144,14 +144,18 @@ app.post("/presentation", async (req, res) => {
     // 1. Gemini estructura el contenido
     const model = genAI.getGenerativeModel({ 
       model: "gemini-1.5-flash",
-      generationConfig: { responseMimeType: "application/json" }
+      
     });
 
     const prompt = `Actúa como diseñador editorial católico. Organiza el siguiente contenido en exactamente ${slideCount} secciones para un documento PDF.
     Responde ÚNICAMENTE en JSON: { "pages": [{ "header": "Título", "body": "Contenido" }] }. 
     Contenido: ${sourceAnswer}`;
 
-    const aiResult = await model.generateContent(prompt);
+    const aiResult = await model.generateContent({
+      contents: [{ role: 'user', parts: [{ text: prompt }] }],
+      generationConfig: { responseMimeType: "application/json" }
+    });
+    
     const data = JSON.parse(aiResult.response.text());
 
     // 2. Lanzar Puppeteer optimizado para Vercel
