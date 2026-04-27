@@ -141,21 +141,29 @@ app.post("/presentation", async (req, res) => {
   try {
     const { title, slideCount, sourceAnswer } = req.body;
 
-    // 1. Gemini estructura el contenido (Usando 3.0 Flash Preview como recomendó Google)
+    // 1. Gemini estructura el contenido (Sin el campo conflictivo)
     const model = genAI.getGenerativeModel({
       model: "gemini-3-flash-preview",
     }, { apiVersion: 'v1' });
 
+    // Reforzamos el prompt para que el JSON venga limpio
     const prompt = `Actúa como diseñador editorial católico. Organiza el siguiente contenido en exactamente ${slideCount} secciones para un documento PDF.
-    Responde ÚNICAMENTE en JSON: { "pages": [{ "header": "Título", "body": "Contenido" }] }. 
+    Responde ÚNICAMENTE en formato JSON plano: { "pages": [{ "header": "Título", "body": "Contenido" }] }.
+    No incluyas explicaciones ni bloques de código markdown.
     Contenido: ${sourceAnswer}`;
 
     const aiResult = await model.generateContent({
-      contents: [{ role: 'user', parts: [{ text: prompt }] }],
-      generationConfig: { responseMimeType: "application/json" }
+      contents: [{
+        role: 'user',
+        parts: [{ text: prompt }]
+      }]
+      // ELIMINAMOS generationConfig para que no de Error 400
     });
 
-    const data = JSON.parse(aiResult.response.text());
+    // Limpieza de seguridad por si la IA usa bloques de código
+    let textResponse = aiResult.response.text();
+    textResponse = textResponse.replace(/```json|```/g, "").trim();
+    const data = JSON.parse(textResponse);
 
     // 2. Plantilla HTML con estilo Doctor Fidei
     const htmlContent = `
@@ -217,12 +225,12 @@ app.post("/presentation", async (req, res) => {
     </html>`;
 
     // 3. Generar PDF usando html-pdf-node (Sin navegador externo)
-    const options = { 
-      format: 'A4', 
+    const options = {
+      format: 'A4',
       printBackground: true,
       margin: { top: 0, right: 0, bottom: 0, left: 0 }
     };
-    
+
     const file = { content: htmlContent };
 
     const pdfBuffer = await html_to_pdf.generatePdf(file, options);
@@ -233,9 +241,9 @@ app.post("/presentation", async (req, res) => {
 
   } catch (error) {
     console.error("Error detallado en PDF:", error);
-    res.status(500).json({ 
-      error: "Error al generar el documento", 
-      details: error.message 
+    res.status(500).json({
+      error: "Error al generar el documento",
+      details: error.message
     });
   }
 });
