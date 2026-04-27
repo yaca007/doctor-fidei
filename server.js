@@ -141,7 +141,7 @@ app.post("/presentation", async (req, res) => {
 
     // 1. Gemini estructura el contenido (2.0 Flash es el más estable en v1)
     const model = genAI.getGenerativeModel({
-      model: "gemini-2.0-flash",
+      model: "gemini-1.5-flash",
     }, { apiVersion: 'v1' });
 
     const prompt = `Actúa como diseñador editorial católico. Organiza el siguiente contenido en exactamente ${slideCount} secciones para un documento PDF.
