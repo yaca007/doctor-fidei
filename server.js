@@ -185,6 +185,10 @@ app.post("/presentation", async (req, res) => {
 
     const isKids = deckStyle === "infantil-acuarela" || deckStyle === "infantil-biblico";
 
+    // Elimina emojis que PDFKit (Helvetica) no puede renderizar
+    const stripEmojis = (str) => (str || "").replace(/\p{Emoji}/gu, "").trim();
+
+
     // ── PASO 1: Estructurar el JSON con gemini-2.5-flash ──
     const textModel = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
@@ -196,7 +200,7 @@ Divide este contenido doctrinal en exactamente ${slideCount} páginas para un PD
 Usa lenguaje muy simple, frases cortas, analogías divertidas y ejemplos de la vida cotidiana de un niño.
 
 Para cada página define:
-- "header": título corto y simpático (máx 6 palabras, con algún emoji si aplica)
+- "header": título corto y simpático (máx 6 palabras, SIN emojis, solo texto)
 - "body": contenido en lenguaje de niños (máx 80 palabras, frases cortas, divertido y claro)
 - "image_prompt": descripción en inglés para ilustración INFANTIL: colorida, cartoon, tipo libro ilustrado, personajes simpáticos, estilo acuarela suave, fondo blanco o pastel, colores vibrantes, SIN fondo oscuro, SIN realismo, SIN adultos serios
 
@@ -338,7 +342,7 @@ ${sourceAnswer}`;
           .text(`${index + 1}`, w - 52, 35, { width: 20, align: "center" });
 
         // Header con fondo de color
-        const headerText = p.header;
+        const headerText = stripEmojis(p.header);
         doc.roundedRect(textX - 8, 48, textWidth + 8, 52, 10).fill(accentColor + "22");
         doc.fillColor(darkAccent).fontSize(20).font("Helvetica-Bold");
         const headerHeight = doc.heightOfString(headerText, { width: textWidth });
@@ -350,7 +354,7 @@ ${sourceAnswer}`;
 
         // Body: texto simple para niños
         doc.fillColor("#2c3e50").fontSize(15).font("Helvetica")
-          .text(p.body, textX, lineY + 14, {
+          .text(stripEmojis(p.body), textX, lineY + 14, {
             width: textWidth,
             align: "left",
             lineGap: 7,
