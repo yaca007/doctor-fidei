@@ -6,6 +6,7 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 import path from "path";
 import { fileURLToPath } from "url";
 import PDFDocument from "pdfkit";
+import { google } from "googleapis";
 
 dotenv.config();
 
@@ -22,6 +23,51 @@ app.use(express.static(path.join(__dirname, "public")));
 // --- CONFIGURACIÓN DE APIS ---
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+
+// ================================================================
+// GOOGLE SHEETS — Sistema de logs de consumo
+// ================================================================
+const SHEET_ID = "1re126XXxclcfmw0pkD6gWPgivrsOnsAj-und8UwL03U";
+const SHEET_TAB = "Hoja 1";
+
+// Precios aproximados por unidad (actualizá según tu plan)
+const PRICES = {
+  chat_per_1k_input:  0.01,   // GPT-4-turbo input por 1K tokens
+  chat_per_1k_output: 0.03,   // GPT-4-turbo output por 1K tokens
+  tts_per_1k_chars:   0.015,  // OpenAI TTS standard por 1K chars
+  gemini_per_request: 0.002,  // Gemini 2.5 Flash estimado por request
+  imagen_per_image:   0.02,   // Nano Banana 2 estimado por imagen
+};
+
+async function getSheetsClient() {
+  const auth = new google.auth.GoogleAuth({
+    credentials: {
+      client_email: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
+      private_key: process.env.GOOGLE_PRIVATE_KEY?.replace(/\\n/g, "\n"),
+    },
+    scopes: ["https://www.googleapis.com/auth/spreadsheets"],
+  });
+  const authClient = await auth.getClient();
+  return google.sheets({ version: "v4", auth: authClient });
+}
+
+async function logToSheets(tipo, detalle, tokens, costoUSD, duracionMs, error = "") {
+  try {
+    const sheets = await getSheetsClient();
+    const fecha = new Date().toLocaleString("es-PY", { timeZone: "America/Asuncion" });
+    await sheets.spreadsheets.values.append({
+      spreadsheetId: SHEET_ID,
+      range: `${SHEET_TAB}!A:G`,
+      valueInputOption: "USER_ENTERED",
+      requestBody: {
+        values: [[fecha, tipo, detalle, tokens, costoUSD.toFixed(6), duracionMs, error]],
+      },
+    });
+  } catch (e) {
+    // El log nunca debe romper la app — solo avisamos en consola
+    console.warn("[LOG] No se pudo registrar en Sheets:", e.message);
+  }
+}
 
 const SYSTEM_PROMPT = `
 Eres Doctor Fidei, un agente experto en doctrina, Magisterio y apologética católica.
@@ -103,6 +149,7 @@ Para dirigirte al usuario, dile siempre "Mi Rey", para darle ese toque de cercan
 // CHAT (OPENAI) — con historial, mode y tone
 // ================================================================
 app.post("/chat", async (req, res) => {
+  const start = Date.now();
   try {
     const { message, mode, tone, history } = req.body;
 
@@ -127,9 +174,23 @@ app.post("/chat", async (req, res) => {
       messages,
     });
 
+    const usage = response.usage || {};
+    const inputTokens = usage.prompt_tokens || 0;
+    const outputTokens = usage.completion_tokens || 0;
+    const totalTokens = usage.total_tokens || 0;
+    const costo = (inputTokens / 1000 * PRICES.chat_per_1k_input) +
+                  (outputTokens / 1000 * PRICES.chat_per_1k_output);
+
+    const duracion = Date.now() - start;
+    const detalle = `Modo: ${mode || "breve"} | Tono: ${tone || "pastoral"} | Pregunta: ${(message || "").slice(0, 80)}`;
+
+    // Log async — no bloquea la respuesta
+    logToSheets("CHAT", detalle, totalTokens, costo, duracion);
+
     res.json({ reply: response.choices[0].message.content });
   } catch (error) {
     console.error("Error en chat:", error);
+    logToSheets("CHAT_ERROR", (error.message || "").slice(0, 100), 0, 0, Date.now() - start, error.message);
     res.status(500).json({ error: "Error en IA de Chat" });
   }
 });
@@ -138,6 +199,7 @@ app.post("/chat", async (req, res) => {
 // TEXT-TO-SPEECH (OPENAI) — voz shimmer, español natural
 // ================================================================
 app.post("/tts", async (req, res) => {
+  const start = Date.now();
   try {
     const { text, voice } = req.body;
 
@@ -167,11 +229,17 @@ app.post("/tts", async (req, res) => {
 
     const buffer = Buffer.from(await mp3.arrayBuffer());
 
+    const chars = truncated.length;
+    const costo = (chars / 1000) * PRICES.tts_per_1k_chars;
+    const duracion = Date.now() - start;
+    logToSheets("TTS", `Chars: ${chars} | Voz: ${voice || "shimmer"}`, chars, costo, duracion);
+
     res.setHeader("Content-Type", "audio/mpeg");
     res.setHeader("Content-Length", buffer.length);
     res.send(buffer);
   } catch (error) {
     console.error("Error en TTS:", error);
+    logToSheets("TTS_ERROR", (error.message || "").slice(0, 100), 0, 0, Date.now() - start, error.message);
     res.status(500).json({ error: "Error en Text-to-Speech", details: error.message });
   }
 });
@@ -180,6 +248,7 @@ app.post("/tts", async (req, res) => {
 // PDF PREMIUM — con estilos: sacro adulto + infantil (acuarela / bíblico)
 // ================================================================
 app.post("/presentation", async (req, res) => {
+  const start = Date.now();
   try {
     const { title, slideCount, sourceAnswer, audienceLevel, deckTone, deckStyle } = req.body;
 
@@ -460,6 +529,18 @@ ${sourceAnswer}`;
       doc.on("end", () => {
         try {
           const pdfBuffer = Buffer.concat(buffers);
+          const slides = data.pages ? data.pages.length : slideCount;
+          const costoTexto = PRICES.gemini_per_request;
+          const costoImagenes = slides * PRICES.imagen_per_image;
+          const costoTotal = costoTexto + costoImagenes;
+          const duracion = Date.now() - start;
+          logToSheets(
+            "PDF",
+            `Titulo: ${(title || "").slice(0,60)} | Slides: ${slides} | Estilo: ${deckStyle || "sacro"}`,
+            slides,
+            costoTotal,
+            duracion
+          );
           res.setHeader("Content-Type", "application/pdf");
           res.setHeader("Content-Disposition", `attachment; filename="doctor-fidei.pdf"`);
           res.send(pdfBuffer);
@@ -474,6 +555,7 @@ ${sourceAnswer}`;
 
   } catch (error) {
     console.error("Error Crítico Presentación:", error);
+    logToSheets("PDF_ERROR", (error.message || "").slice(0, 100), 0, 0, Date.now() - start, error.message);
     if (!res.headersSent) {
       res.status(500).json({ error: "Fallo en la generación del PDF", details: error.message });
     }
