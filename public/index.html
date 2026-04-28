@@ -910,6 +910,86 @@
                 opacity: 1
             }
         }
+
+        /* ── TTS AUDIO PLAYER ── */
+        .ttsBar {
+            display: flex;
+            align-items: center;
+            gap: .55rem;
+            margin-top: .65rem;
+            padding: .6rem .85rem;
+            background: rgba(212, 175, 55, .07);
+            border: 1px solid rgba(212, 175, 55, .18);
+            border-radius: .75rem;
+            animation: pop .25s ease
+        }
+
+        .ttsBtn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 2rem;
+            height: 2rem;
+            border-radius: 50%;
+            border: 1px solid rgba(212, 175, 55, .35);
+            background: rgba(212, 175, 55, .12);
+            color: var(--gold2);
+            cursor: pointer;
+            font-size: .95rem;
+            flex-shrink: 0;
+            transition: .2s
+        }
+
+        .ttsBtn:hover {
+            background: rgba(212, 175, 55, .25);
+        }
+
+        .ttsBtn:disabled {
+            opacity: .45;
+            cursor: not-allowed
+        }
+
+        .ttsProgress {
+            flex: 1;
+            height: .3rem;
+            background: rgba(255, 255, 255, .1);
+            border-radius: 99px;
+            overflow: hidden;
+            cursor: pointer
+        }
+
+        .ttsProgressFill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--gold), var(--gold2));
+            border-radius: 99px;
+            width: 0%;
+            transition: width .1s linear
+        }
+
+        .ttsTime {
+            font-size: .74rem;
+            color: var(--muted);
+            flex-shrink: 0;
+            min-width: 3rem;
+            text-align: right
+        }
+
+        .ttsLoading {
+            font-size: .78rem;
+            color: var(--gold2);
+            animation: pulse 1.2s infinite
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1 }
+            50% { opacity: .4 }
+        }
+
+        /* ── ESTILO INFANTIL en select ── */
+        .kidsTag {
+            color: #f59e0b;
+            font-weight: 800
+        }
     </style>
 </head>
 
@@ -1041,6 +1121,9 @@
                             <option value="victoriano-renacentista" selected>Victoriano-renacentista</option>
                             <option value="manuscrito-iluminado">Manuscrito iluminado</option>
                             <option value="vaticano-sobrio">Vaticano sobrio</option>
+                            <option disabled>── Para niños ──</option>
+                            <option value="infantil-acuarela">🎨 Infantil — Acuarela cartoon</option>
+                            <option value="infantil-biblico">📖 Infantil — Ilustración bíblica colorida</option>
                         </select></div>
                     <div class="field full"><label for="speakerNotes">Notas para el presentador</label><textarea
                             id="speakerNotes"
@@ -1245,7 +1328,9 @@
                         localStorage.setItem(K.lastAnswer, content);
                         openPresentationModal()
                     });
-                    acts.append(cp, db, dk);
+                    // Botón Escuchar con player TTS
+                    const sp = btn('🔊 Escuchar', () => playTTS(content, sp, card));
+                    acts.append(cp, db, dk, sp);
                     card.appendChild(acts)
                 }
                 row.appendChild(card);
@@ -1558,6 +1643,127 @@
             window.openPresentationModal = openPresentationModal;
             window.generatePresentation = generatePresentation;
             window.copyDeckPrompt = copyDeckPrompt;
+
+            // ════════════════════════════════════════════
+            // TEXT-TO-SPEECH — voz shimmer (OpenAI)
+            // ════════════════════════════════════════════
+            let currentAudio = null;
+            let currentTtsBar = null;
+            let progressTimer = null;
+
+            function fmtTime(s) {
+                const m = Math.floor(s / 60);
+                const sec = Math.floor(s % 60);
+                return `${m}:${sec.toString().padStart(2, '0')}`;
+            }
+
+            async function playTTS(text, triggerBtn, card) {
+                // Si ya hay audio reproduciendo, lo pausamos/continuamos
+                if (currentAudio && !currentAudio.paused) {
+                    currentAudio.pause();
+                    return;
+                }
+                if (currentAudio && currentAudio.paused && currentTtsBar && card.contains(currentTtsBar)) {
+                    currentAudio.play();
+                    return;
+                }
+
+                // Si hay un player anterior, lo limpiamos
+                if (currentTtsBar) {
+                    currentTtsBar.remove();
+                    clearInterval(progressTimer);
+                }
+                if (currentAudio) {
+                    currentAudio.pause();
+                    currentAudio = null;
+                }
+
+                // Mostrar barra de carga
+                const bar = document.createElement('div');
+                bar.className = 'ttsBar';
+                bar.innerHTML = `<span class="ttsLoading">♪ Generando audio...</span>`;
+                card.querySelector('.actions').after(bar);
+                currentTtsBar = bar;
+                triggerBtn.disabled = true;
+
+                try {
+                    const r = await fetch('/tts', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ text, voice: 'shimmer' })
+                    });
+
+                    if (!r.ok) throw new Error('Error TTS');
+
+                    const blob = await r.blob();
+                    const url = URL.createObjectURL(blob);
+                    const audio = new Audio(url);
+                    currentAudio = audio;
+
+                    // Construir player completo
+                    bar.innerHTML = `
+                        <button class="ttsBtn" id="ttsPlayPause" title="Reproducir / Pausar">⏸</button>
+                        <div class="ttsProgress" id="ttsProgressBar">
+                            <div class="ttsProgressFill" id="ttsProgressFill"></div>
+                        </div>
+                        <span class="ttsTime" id="ttsTime">0:00</span>
+                        <button class="ttsBtn" id="ttsStop" title="Detener">⏹</button>
+                    `;
+
+                    const playPauseBtn = bar.querySelector('#ttsPlayPause');
+                    const fill = bar.querySelector('#ttsProgressFill');
+                    const timeLabel = bar.querySelector('#ttsTime');
+                    const stopBtn = bar.querySelector('#ttsStop');
+                    const progressBar = bar.querySelector('#ttsProgressBar');
+
+                    // Click en barra para saltar
+                    progressBar.addEventListener('click', (e) => {
+                        if (!audio.duration) return;
+                        const rect = progressBar.getBoundingClientRect();
+                        const pct = (e.clientX - rect.left) / rect.width;
+                        audio.currentTime = pct * audio.duration;
+                    });
+
+                    playPauseBtn.addEventListener('click', () => {
+                        if (audio.paused) { audio.play(); playPauseBtn.textContent = '⏸'; }
+                        else { audio.pause(); playPauseBtn.textContent = '▶'; }
+                    });
+
+                    stopBtn.addEventListener('click', () => {
+                        audio.pause();
+                        audio.currentTime = 0;
+                        bar.remove();
+                        currentAudio = null;
+                        currentTtsBar = null;
+                        clearInterval(progressTimer);
+                        triggerBtn.disabled = false;
+                    });
+
+                    progressTimer = setInterval(() => {
+                        if (!audio.duration) return;
+                        const pct = (audio.currentTime / audio.duration) * 100;
+                        fill.style.width = pct + '%';
+                        timeLabel.textContent = fmtTime(audio.currentTime) + ' / ' + fmtTime(audio.duration);
+                    }, 200);
+
+                    audio.addEventListener('ended', () => {
+                        clearInterval(progressTimer);
+                        fill.style.width = '100%';
+                        playPauseBtn.textContent = '▶';
+                        triggerBtn.disabled = false;
+                        URL.revokeObjectURL(url);
+                    });
+
+                    audio.play();
+
+                } catch (e) {
+                    bar.innerHTML = '<span style="color:#ef4444;font-size:.8rem">No se pudo generar el audio.</span>';
+                    setTimeout(() => bar.remove(), 3000);
+                    console.error('TTS error:', e);
+                } finally {
+                    triggerBtn.disabled = false;
+                }
+            }
         });
     </script>
 </body>
